@@ -1,4 +1,4 @@
-RealTimeSkinRendering
+Real Time Skin Rendering
 ===============
 This is an implementation of the NVIDIA's demo of real-time skin rendering
 
