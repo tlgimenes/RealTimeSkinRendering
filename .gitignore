@@ -1,0 +1,13 @@
+Release
+Debug
+release
+debug 
+*.o
+*.a
+*.aux
+*.log
+*.gz
+*.toc
+*.tar
+*.jpeg
+*.obj

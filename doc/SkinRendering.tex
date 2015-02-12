@@ -1,0 +1,77 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\author{Hamza El Rafoulli \\ Tiago Lobato Gimenes}
+\title{Advanced Techniques for Realistic Real-Time Skin Rendering}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\proj}{proj}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+Écrire ce qu'on a compris et codé
+
+\section{Modèle}
+Ce que fait la peau tellement difficile à rendre c'est sa propriété de que la lumière incidente est absorbé en partie et est émise dans un point différent. 
+Pour faire un modèle cohérent il nous faut un modèle qui tienne conte de ces plusieurs couches et que les traite de fa\c con particulières. Dans les sections suivantes, les notations ont été adopté:
+\begin{itemize}
+\item $\vec{L}$ : Direction de la lumière
+\item $\vec{V}$ : Direction de l'observateur
+\item $\vec{H}$ : Vecteur orientée vers la bissectrice entre $\vec{V}$ et $\vec{L}$ et est appelé de \textit{halfway vector}
+\item $\vec{N}$ : Vecteur normal à la surface
+\item $\alpha$  : angle entre $\vec{H}$ et $\vec{N}$
+\end{itemize}
+
+\subsection{Couche Huileux}
+\subsubsection{Présenté dans l'article}
+Cette couche est la seule couche où la réflectance est spéculaire. Au lieu d'utiliser le terme spéculaire de la BRDF de Phong, il vaux mieux d'utiliser celui d'une BRDF physique, vu qu'elle augmente quelques lignes de code et donne un résultat expressive. Le modèle choisit est le modèle de Kelemen/Szirmay-Kalos. Le terme spéculaire dans ce type de modèle est généralement donné par:
+$$
+f_{r,spec} = P_{\vec{H}}(\vec{H}).F(\lambda, \vec{H}.\vec{L}).G(\vec{N},\vec{L},\vec{V})
+$$
+où $P_{\vec{H}}(\vec{H})$ est la densité de probabilité du \textit{halfway vector}, $F(\lambda, \vec{H}.\vec{L})$ est le terme de Fresnel et $G(\vec{N},\vec{L},\vec{V})$ est le terme géométrique. Dans le modèle de Kelemen/Szirmay-Kalos, ces termes sont définis comme étant:
+$$
+\begin{array}{c}
+P_{\vec{H}}(\vec{H}) = \frac{\exp\left(-\frac{\tan\alpha}{m}\right)^2}{m^2.\left(\vec{N}.\vec{H}\right)^4}, \\ \\
+
+G(\vec{N},\vec{L},\vec{V}) = (\vec{L} + \vec{V})^2 = \vec{h}.\vec{h}, \\ \\
+
+F(\lambda, \vec{H}.\vec{L}) = \left(1-\vec{V}.\vec{H}\right)^5 + F_0\left(1-\left(1-\vec{V}.\vec{H}\right)^5\right)
+\end{array}
+$$
+où $\vec{h}$ est le \textit{halfway vector} non normalisé et $F_0$ est la reflectance à l'incidence normale.
+
+Une amélioration du modèle peut être fait en variant les valeurs de $m$ et de $\rho_s$ en utilisant les valeurs de Weyrich et al. 2006.
+
+\subsubsection{Commentaires}
+L'article dit qu'il vaut mieux de faire le calcul de la distribution de probabilité avant de lancer le calcul de la BRDF et de le estoquer dans une texture pour accélérer la computation, quelque chose qui n'est pas faisable si nous voulons une application dynamique et itérative où nous voulons tourner l'objet par example, ce que changerais le vecteur de vision $\vec{V}$ et, donc, le \textit{halfway vector} $\vec{H}$ en, finalement, changeant le vecteur $\alpha$ et, par conséquent, la distrubuition de probabilité de Beckermann, ce que rend une mise à jour de la texture nécessaire en n'impliquent pas forcement à un calcul plus vite mais à un code plus complexe et compliqué.
+
+\subsection{Sous couches}
+Les autres sous couches sont des couches avec une réflexion diffuse. Pour la peau, ces couches on la propriété de renvoyer la lumière dans tout les directions également, ce que nous permet de ne pas considérer la direction de la lumière mais seulement l'intensité re\c cue en chaque point.
+
+Deux modèles différents ont été utilisé. Le modèle du dipole de Jensen et al 2001 et le modèle du multipole de Donner et Jensen 2005. L'article montre que le modèle du dipole n'est pas satisfaisante et que le modèle du multipole avec trois couches est un modèle satisfaisante.
+
+L'article essaies de faire une simplification en faisant la projection du modèle du multipole sur un espace des gaussiennes $G_{n} = \left\lbrace \frac{1}{2\pi\nu}e^{\frac{r^2}{2\nu}}\right\rbrace$ tel qu'elles aient un impulse unitaire. Cette projection est définie comme:
+\begin{equation}
+\proj_{G_n} M=\argmin_{G_{sum}\in G_n}\left\lbrace\frac{\sqrt{\int\limits_0^{\infty} r\left(R(r)-G_{sum}\right)^2}dr}{\sqrt{\int\limits_0^\infty r\left(R(r)\right)^2dr}}\right\rbrace
+\end{equation}
+
+Pour vérifier la qualité du fitting il faut faire un plot de $rR(r)$ vs. $r$ puisque l'aire sous la courbe est proportionnelle à la reflectance diffuse. 
+
+Après avoir calculé les gaussiennes, l'astuce pour rendre la diffusion c'est de faire un blur avec ces gaussiennes sur la texture avec la texture d'irradiance, les combiner linéairement et appliquer la texture finale à la face.
+
+\end{document}
