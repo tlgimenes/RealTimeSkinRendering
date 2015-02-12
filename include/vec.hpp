@@ -257,7 +257,7 @@ inline T Vec<dim,T>::dist(const Vec<dim, T>& b) const {
 template <int dim, typename T>
 inline T Vec<dim,T>::normalize() { // returns the length before normalization
     T l = norm2();
-    if(l < 0.0f + EPSILON && l > 0.0f + EPSILON)
+    if(l < 0.0f + EPSILON)
         return 0;
     T invL = 1.0f / l;
     *this *= invL;

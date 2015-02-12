@@ -16,8 +16,10 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 
-#include "mesh.hpp"
 #include "shader.hpp"
+#include "shader_phong.hpp"
+#include "mesh.hpp"
+#include "mesh_factory.hpp"
 #include "parser.hpp"
 #include "camera.hpp"
 #include "error.hpp"
@@ -34,10 +36,11 @@ static int lastX=0, lastY=0, lastZoom=0;
 static unsigned int FPS = 0;
 static bool full_screen = false;
 static bool wireframe = false;
+static bool shader = true;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Global variables
-static Mesh* mesh = NULL;
+static Mesh* meshs;
 static Shader* skin_shader = NULL;
 static Camera* camera = NULL;
 static Vec3f background_color(0,0,0);
@@ -106,12 +109,11 @@ void init (const std::string& file_name) {
     }
     
     /* Init global variables */
-    mesh = new Mesh();
-    skin_shader = new Shader();
+    meshs = &MeshFactory::load(file_name);
+    skin_shader = new ShaderPhong();
     camera = new Camera();
 
     camera->resize (SCREENWIDTH, SCREENHEIGHT);
-    mesh->load (file_name); // loads the OFF file
     
     // Specifies the faces to cull (here the ones pointing away from the camera)
     glCullFace (GL_BACK); 
@@ -145,7 +147,7 @@ void idle()
         FPS = counter;
         counter = 0;
         static char winTitle [128];
-        unsigned int numOfTriangles = mesh->triangle().size ();
+        unsigned int numOfTriangles = meshs->triangle().size ();
         sprintf (winTitle, "Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
         glutSetWindowTitle (winTitle);
         lastTime = currentTime;
@@ -161,12 +163,12 @@ inline void draw()
 {
     glBegin(GL_TRIANGLES);
 
-    for(unsigned int i=0; i < mesh->triangle().size(); i++)
+    for(unsigned int i=0; i < meshs->triangle().size(); i++)
     {
         for(unsigned int j=0; j < 3; j++) 
         {
-            const Vec3f& v = mesh->vertex()[mesh->triangle()[i].v()[j]];
-            const Vec3f& n = mesh->normal()[mesh->triangle()[i].n()[j]];
+            const Vec3f& v = meshs->vertex()[meshs->triangle()[i].v()[j]];
+            const Vec3f& n = meshs->normal()[meshs->triangle()[i].n()[j]];
 
             glNormal3f (n[0], n[1], n[2]);
 
@@ -210,6 +212,11 @@ void key(unsigned char key, int x, int y)
         case 'w': // Wireframe
             glPolygonMode( GL_FRONT_AND_BACK, wireframe ? GL_FILL : GL_LINE);
             wireframe = !wireframe;
+            break;
+        case 'g':
+            (shader ? skin_shader->unbind() : skin_shader->bind());
+            shader = !shader;
+            break;
         case '+': // Zoom +
             camera->zoom(-0.2);
             break;

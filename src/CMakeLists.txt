@@ -11,13 +11,15 @@ set(SRC
     mesh.cpp 
     mesh_loader_obj.cpp 
     mesh_loader_off.cpp 
-    shader.cpp 
+    mesh_factory.cpp
     texture.cpp
     texture_loader_jpeg.cpp
     texture_loader_ppm.cpp
     triangle.cpp
     parser.cpp
     camera.cpp
+    shader.cpp 
+    shader_phong.cpp
     )
 set(INC ${CMAKE_SOURCE_DIR}/include)
 

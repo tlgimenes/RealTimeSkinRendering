@@ -17,29 +17,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void Mesh::load(const std::string & filename)
-{
-
-    if(filename.compare(filename.size()-4, 4, ".obj") == 0) { // if .obj
-        MeshLoaderObj::load(filename, *this);
-    }
-    else if(filename.compare(filename.size()-4, 4, ".off") == 0) { // if .off
-        MeshLoaderOff::load(filename, *this);
-    }
-    else {
-        FATAL_ERROR("File format valid");
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-
 bool is_mesh_correct(const std::vector<Vec3f>& _vertex_coord, const std::vector<Triangle>& _triangles)
 {
     for(uint i=0; i < _triangles.size(); i++)
     {
         for(uint j=0; j < 3; j++)
         {
-            if(_triangles[i].v()[j] >= _vertex_coord.size()) {
+            if(_triangles[i].v()[j] >= _vertex_coord.size() || _triangles[i].v()[j] < 0) {
                 std::cout << _vertex_coord.size() << " " << _triangles[i].v()[j] << std::endl;
                 FATAL_ERROR("Mesh is not correct !");
             }
@@ -47,6 +31,8 @@ bool is_mesh_correct(const std::vector<Vec3f>& _vertex_coord, const std::vector<
     }
     return false;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 void Mesh::recomputeNormals () 
 {
@@ -59,11 +45,13 @@ void Mesh::recomputeNormals ()
         Vec3f e02 = _vertex_coord[_triangles[i].v()[2]] -  _vertex_coord[_triangles[i].v()[0]];
         Vec3f n = e01.cross (e02);
         n.normalize ();
-        for (unsigned int j = 0; j < 3; j++)
+        for (unsigned int j = 0; j < 3; j++) {
             _normals[_triangles[i].n()[j]] += n;
+        }
     }
-    for (unsigned int i = 0; i < _vertex_coord.size (); i++)
+    for (unsigned int i = 0; i < _vertex_coord.size (); i++) {
         _normals[i].normalize ();    
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

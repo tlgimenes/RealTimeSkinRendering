@@ -16,6 +16,8 @@
 
 #include <obj.hpp>
 #include <functional>
+#include <vector>
+#include <map>
 
 #include "mesh.hpp"
 
@@ -106,13 +108,23 @@ class MeshLoaderObj
 
         static void group_name_cb(const std::string&);
 
+        static void info_cb(size_t, const std::string& );
+
+        static void comment_cb(const std::string&);
+
+        static void object_name_cb(const std::string&);
+
+        static void material_library_cb(const std::string&);
+
+        static void material_name_cb(const std::string&);
+
         static void warning_cb(std::size_t, const std::string&);
 
         static void error_cb(std::size_t, const std::string&);
-
+    
     private:
         // Current mesh beeing loaded
-        static Mesh* curr_mesh;
+        static Mesh* _curr_mesh;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

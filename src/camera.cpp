@@ -13,8 +13,8 @@
 // (at your option) any later version.                                        
 //                                                                            
 // This program is distributed in the hope that it will be useful,            
-// but WITHOUT ANY WARRANTY; without even the implied warranty of             
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              
+// but wIThOUT ANY wARRANTY; without even the implied warranty of             
+// MERChANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              
 // GNU General Public License (http://www.gnu.org/licenses/gpl.txt)           
 // for more details.                                                          
 //                                                                          
@@ -45,7 +45,7 @@ negate_quat(float *q, float *qn);
 /*
  * Given two quaternions, add them together to get a third quaternion.
  * Adding quaternions to get a compound rotation is analagous to adding
- * translations to get a compound translation.  When incrementally
+ * translations to get a compound translation.  when incrementally
  * adding rotations, the first argument here should be the new
  * rotation, the second and third the total rotation (which will be
  * over-written with the resulting new total rotation).
@@ -98,13 +98,13 @@ Camera::Camera () {
 }
 
 
-void Camera::resize (int _W, int _H) {
-  H = _H;
-  W = _W;
-  glViewport (0, 0, (GLint)W, (GLint)H);
+void Camera::resize (int _w, int _h) {
+  h = _h;
+  w = _w;
+  glViewport (0, 0, (GLint)w, (GLint)h);
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
-  aspectRatio = static_cast<float>(W)/static_cast<float>(H);
+  aspectRatio = static_cast<float>(w)/static_cast<float>(h);
   gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane);
   glMatrixMode (GL_MODELVIEW);
 }
@@ -160,10 +160,10 @@ void Camera::beginRotate (int u, int v) {
 void Camera::rotate (int u, int v) {
   if (moving) {
     trackball(lastquat,
-	      (2.0 * beginu - W) / W,
-	      (H - 2.0 * beginv) / H,
-	      (2.0 * u - W) / W,
-	      (H - 2.0 * v) / H);
+	      (2.0 * beginu - w) / w,
+	      (h - 2.0 * beginv) / h,
+	      (2.0 * u - w) / w,
+	      (h - 2.0 * v) / h);
     beginu = u;
     beginv = v;
     spinning = 1;
@@ -211,7 +211,7 @@ void Camera::getPos (float & xx, float & yy, float & zz) {
 #include <cstdio>
 /*
  * (c) Copyright 1993, 1994, Silicon Graphics, Inc.
- * ALL RIGHTS RESERVED
+ * ALL RIGhTS RESERVED
  * Permission to use, copy, modify, and distribute this software for
  * any purpose and without fee is hereby granted, provided that the above
  * copyright notice appear in all copies and that both the copyright notice
@@ -220,18 +220,18 @@ void Camera::getPos (float & xx, float & yy, float & zz) {
  * or publicity pertaining to distribution of the software without specific,
  * written prior permission.
  *
- * THE MATERIAL EMBODIED ON THIS SOFTWARE IS PROVIDED TO YOU "AS-IS"
- * AND WITHOUT WARRANTY OF ANY KIND, EXPRESS, IMPLIED OR OTHERWISE,
- * INCLUDING WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY OR
- * FITNESS FOR A PARTICULAR PURPOSE.  IN NO EVENT SHALL SILICON
- * GRAPHICS, INC.  BE LIABLE TO YOU OR ANYONE ELSE FOR ANY DIRECT,
+ * ThE MATERIAL EMBODIED ON ThIS SOFTwARE IS PROVIDED TO YOU "AS-IS"
+ * AND wIThOUT wARRANTY OF ANY KIND, EXPRESS, IMPLIED OR OThERwISE,
+ * INCLUDING wIThOUT LIMITATION, ANY wARRANTY OF MERChANTABILITY OR
+ * FITNESS FOR A PARTICULAR PURPOSE.  IN NO EVENT ShALL SILICON
+ * GRAPhICS, INC.  BE LIABLE TO YOU OR ANYONE ELSE FOR ANY DIRECT,
  * SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY
- * KIND, OR ANY DAMAGES WHATSOEVER, INCLUDING WITHOUT LIMITATION,
- * LOSS OF PROFIT, LOSS OF USE, SAVINGS OR REVENUE, OR THE CLAIMS OF
- * THIRD PARTIES, WHETHER OR NOT SILICON GRAPHICS, INC.  HAS BEEN
- * ADVISED OF THE POSSIBILITY OF SUCH LOSS, HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE
- * POSSESSION, USE OR PERFORMANCE OF THIS SOFTWARE.
+ * KIND, OR ANY DAMAGES whATSOEVER, INCLUDING wIThOUT LIMITATION,
+ * LOSS OF PROFIT, LOSS OF USE, SAVINGS OR REVENUE, OR ThE CLAIMS OF
+ * ThIRD PARTIES, whEThER OR NOT SILICON GRAPhICS, INC.  hAS BEEN
+ * ADVISED OF ThE POSSIBILITY OF SUCh LOSS, hOwEVER CAUSED AND ON
+ * ANY ThEORY OF LIABILITY, ARISING OUT OF OR IN CONNECTION wITh ThE
+ * POSSESSION, USE OR PERFORMANCE OF ThIS SOFTwARE.
  *
  * US Government Users Restricted Rights
  * Use, duplication, or disclosure by the Government is subject to
@@ -255,7 +255,7 @@ void Camera::getPos (float & xx, float & yy, float & zz) {
  * Vector manip code:
  *
  * Original code from:
- * David M. Ciemiewicz, Mark Grossman, Henry Moreton, and Paul Haeberli
+ * David M. Ciemiewicz, Mark Grossman, henry Moreton, and Paul haeberli
  *
  * Much mucking with by:
  * Gavin Bell
@@ -511,7 +511,7 @@ printf("tf = %f %f %f %f\n", tf[0], tf[1], tf[2], tf[3]);
  * Note: See the following for more information on quaternions:
  *
  * - Shoemake, K., Animating rotation with quaternion curves, Computer
- *   Graphics 19, No 3 (Proc. SIGGRAPH'85), 245-254, 1985.
+ *   Graphics 19, No 3 (Proc. SIGGRAPh'85), 245-254, 1985.
  * - Pletinckx, D., Quaternion calculus as a basic tool in computer
  *   graphics, The Visual Computer 5, 2-13, 1989.
  */

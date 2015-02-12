@@ -10,8 +10,8 @@
 // (at your option) any later version.                                        
 //                                                                            
 // This program is distributed in the hope that it will be useful,            
-// but WITHOUT ANY WARRANTY; without even the implied warranty of             
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              
+// but wIThOUT ANY wARRANTY; without even the implied warranty of             
+// MERChANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              
 // GNU General Public License (http://www.gnu.org/licenses/gpl.txt)           
 // for more details.                                                          
 //                                                                          
@@ -33,10 +33,10 @@ public:
   inline void setNearPlane (float newNearPlane) { nearPlane = newNearPlane; }
   inline float getFarPlane () const { return farPlane; }
   inline void setFarPlane (float newFarPlane) { farPlane = newFarPlane; }
-  inline unsigned int getScreenWidth () const { return W; }
-  inline unsigned int getScreenHeight () const { return H; }
+  inline unsigned int getScreenwidth () const { return w; }
+  inline unsigned int getScreenheight () const { return h; }
   
-  void resize (int W, int H);
+  void resize (int w, int h);
   
   void initPos ();
 
@@ -58,14 +58,14 @@ private:
   
   int spinning, moving;
   int beginu, beginv;
-  int H, W;
+  int h, w;
   float curquat[4];
   float lastquat[4];
   float x, y, z;
   float _zoom;
 };
 
-// Some Emacs-Hints -- please don't remove:
+// Some Emacs-hints -- please don't remove:
 //
 //  Local Variables:
 //  mode:C++

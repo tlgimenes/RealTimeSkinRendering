@@ -17,8 +17,10 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "triangle.hpp"
+#include "texture.hpp"
 #include "vec2.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +35,7 @@ class Mesh {
     public:
         // Loads a mesh from a file.
         // File formats supported: .off, .obj
-        void load(const std::string& filename);
+        //void load(const std::string& filename);
 
         /// Compute smooth per-vertex normals
         void recomputeNormals ();

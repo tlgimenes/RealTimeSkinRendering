@@ -19,7 +19,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-Mesh* MeshLoaderObj::curr_mesh = NULL;
+Mesh* MeshLoaderObj::_curr_mesh = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,8 +27,8 @@ void MeshLoaderObj::load(const std::string& filename, Mesh& mesh)
 {
     obj::obj_parser parser;
 
-    // Uploads current mesh
-    MeshLoaderObj::curr_mesh = &mesh;
+    // Uploads current Mesh 
+    MeshLoaderObj::_curr_mesh = &mesh;
 
     // Connect callbacks
     parser.geometric_vertex_callback(&MeshLoaderObj::geometric_vertex_cb);
@@ -55,9 +55,12 @@ void MeshLoaderObj::load(const std::string& filename, Mesh& mesh)
             &MeshLoaderObj::polygonal_face_geometric_vertices_texture_vertices_vertex_normals_begin_cb,
             &MeshLoaderObj::polygonal_face_geometric_vertices_texture_vertices_vertex_normals_vertex_cb,
             &MeshLoaderObj::polygonal_face_geometric_vertices_texture_vertices_vertex_normals_end_cb);
-
     parser.group_name_callback(&MeshLoaderObj::group_name_cb);
-
+    parser.info_callback(&MeshLoaderObj::info_cb);
+    parser.comment_callback(&MeshLoaderObj::comment_cb);
+    parser.object_name_callback(&MeshLoaderObj::object_name_cb);
+    parser.material_library_callback(&MeshLoaderObj::material_library_cb);
+    parser.material_name_callback(&MeshLoaderObj::material_name_cb);
     parser.warning_callback(&MeshLoaderObj::warning_cb);
     parser.error_callback(&MeshLoaderObj::error_cb);
 
@@ -73,7 +76,7 @@ void MeshLoaderObj::load(const std::string& filename, Mesh& mesh)
 void MeshLoaderObj::geometric_vertex_cb(const obj::float_type& x, const obj::float_type& y, 
         const obj::float_type& z)
 {
-    MeshLoaderObj::curr_mesh->vertex().push_back(Vec3f(x,y,z));
+    MeshLoaderObj::_curr_mesh->vertex().push_back(Vec3f(x,y,z));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -81,13 +84,13 @@ void MeshLoaderObj::geometric_vertex_cb(const obj::float_type& x, const obj::flo
 void MeshLoaderObj::vertex_normal_cb(const obj::float_type& x, const obj::float_type& y, 
         const obj::float_type& z)
 {
-    MeshLoaderObj::curr_mesh->normal().push_back(Vec3f(x,y,z));
+    MeshLoaderObj::_curr_mesh->normal().push_back(Vec3f(x,y,z));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 void MeshLoaderObj::texture_vertex_cb(const obj::float_type& u, const obj::float_type& v)
 {
-    MeshLoaderObj::curr_mesh->tex_uv().push_back(Vec2f(u,v));
+    MeshLoaderObj::_curr_mesh->tex_uv().push_back(Vec2f(u,v));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -104,9 +107,9 @@ void MeshLoaderObj::triangular_face_geometric_vertices_texture_vertices_cb(
         const obj::index_2_tuple_type& v0, const obj::index_2_tuple_type& v1, 
         const obj::index_2_tuple_type& v2)
 {
-    MeshLoaderObj::curr_mesh->triangle().push_back(Triangle(
+    MeshLoaderObj::_curr_mesh->triangle().push_back(Triangle(
                 Vec3u(std::tr1::get<0>(v0)-1, std::tr1::get<0>(v1)-1, std::tr1::get<0>(v2)-1),
-                Vec3u(0,0,0),
+                Vec3u(std::tr1::get<0>(v0)-1, std::tr1::get<0>(v1)-1, std::tr1::get<0>(v2)-1),
                 Vec3u(std::tr1::get<1>(v0)-1, std::tr1::get<1>(v1)-1, std::tr1::get<1>(v2)-1)));
 }
 
@@ -142,14 +145,14 @@ void MeshLoaderObj::quadrilateral_face_geometric_vertices_texture_vertices_cb(
         const obj::index_2_tuple_type& v0, const obj::index_2_tuple_type& v1, 
         const obj::index_2_tuple_type& v2, const obj::index_2_tuple_type& v3)
 {
-    MeshLoaderObj::curr_mesh->triangle().push_back(Triangle(
+    MeshLoaderObj::_curr_mesh->triangle().push_back(Triangle(
                 Vec3u(std::tr1::get<0>(v0)-1, std::tr1::get<0>(v1)-1, std::tr1::get<0>(v2)-1),
-                Vec3u(0,0,0),
+                Vec3u(std::tr1::get<0>(v0)-1, std::tr1::get<0>(v1)-1, std::tr1::get<0>(v2)-1),
                 Vec3u(std::tr1::get<1>(v0)-1, std::tr1::get<1>(v1)-1, std::tr1::get<1>(v2)-1)));
 
-    MeshLoaderObj::curr_mesh->triangle().push_back(Triangle(
+    MeshLoaderObj::_curr_mesh->triangle().push_back(Triangle(
                 Vec3u(std::tr1::get<0>(v2)-1, std::tr1::get<0>(v3)-1, std::tr1::get<0>(v0)-1),
-                Vec3u(0,0,0),
+                Vec3u(std::tr1::get<0>(v2)-1, std::tr1::get<0>(v3)-1, std::tr1::get<0>(v0)-1),
                 Vec3u(std::tr1::get<1>(v2)-1, std::tr1::get<1>(v3)-1, std::tr1::get<1>(v0)-1)));
 }
 
@@ -269,7 +272,42 @@ void MeshLoaderObj::polygonal_face_geometric_vertices_texture_vertices_vertex_no
 
 void MeshLoaderObj::group_name_cb(const std::string& name)
 {
-    WARNING_ERROR(name);
+    WARNING_ERROR(name + std::string(" I need of some imeplementation"));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void MeshLoaderObj::info_cb(size_t a, const std::string& str)
+{
+    WARNING_ERROR(str + std::string(" I need of some imeplementation"));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void MeshLoaderObj::comment_cb(const std::string& comment)
+{
+    ASSERT_WARNING_ERROR(false, std::string("Comment found in file: \n") + comment);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void MeshLoaderObj::object_name_cb(const std::string& name)
+{
+    WARNING_ERROR(name + std::string(" I need of some imeplementation"));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void MeshLoaderObj::material_library_cb(const std::string& material)
+{
+    WARNING_ERROR(material + std::string(" I need of some imeplementation"));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void MeshLoaderObj::material_name_cb(const std::string& material)
+{
+    WARNING_ERROR(material + std::string(" I need of some imeplementation"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
