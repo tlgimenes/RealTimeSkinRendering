@@ -15,9 +15,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <string>
 #include <vector>
-#include <memory>
+#include <map>
 
 #include "triangle.hpp"
 #include "texture.hpp"
@@ -25,6 +24,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename T>
 class Mesh {
     private:
         std::vector<Triangle> _triangles; // Vector of triangles
@@ -32,16 +32,19 @@ class Mesh {
         std::vector<Vec3f> _vertex_coord; // vertex coordinates
         std::vector<Vec3f> _normals;      // normals
 
-    public:
-        // Loads a mesh from a file.
-        // File formats supported: .off, .obj
-        //void load(const std::string& filename);
+        std::map<GLuint, Texture<T>*> _textures; // Map between Texture and it's GL id
 
+    public:
         /// Compute smooth per-vertex normals
         void recomputeNormals ();
 
         /// scale to the unit cube and center at original
         void centerAndScaleToUnit ();
+
+        /**
+         *  Generates a vertex index array from the _triangles array 
+         * */
+        uint* triangle_to_vertex_index_array() const;
 
         /**
          * Sets  
@@ -50,6 +53,7 @@ class Mesh {
         inline std::vector<Vec2f>& tex_uv() {return _tex_uv;}
         inline std::vector<Vec3f>& vertex() {return _vertex_coord;}
         inline std::vector<Vec3f>& normal() {return _normals;}
+        inline std::map<GLuint, Texture<T>*>& textures() {return _textures;}
 
         /**
          * Gets
@@ -58,7 +62,14 @@ class Mesh {
         inline const std::vector<Vec2f>& tex_uv() const {return _tex_uv;}
         inline const std::vector<Vec3f>& vertex() const {return _vertex_coord;}
         inline const std::vector<Vec3f>& normal() const {return _normals;}
+        inline const std::map<GLuint, Texture<T>*>& textures() const {return _textures;}
 };
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+template class Mesh<uchar>;
+template class Mesh<float>;
+template class Mesh<uint>;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 

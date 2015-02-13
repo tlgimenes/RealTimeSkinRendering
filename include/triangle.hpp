@@ -27,12 +27,14 @@ class Triangle {
         Vec3u _n; // Normal indices
         Vec3u _tex; // Texture indices
 
+        GLuint _tex_id;
+
     public:
         /**
          * Constructs triangles based on indices  
          * */
         Triangle(const Vec3u& v = Vec3u(0,0,0), const Vec3u& n = Vec3u(0,0,0), 
-                const Vec3u& tex = Vec3u(0,0,0));
+                const Vec3u& tex = Vec3u(0,0,0), GLuint tex_id = 0);
         
         /**
          * Gets
@@ -40,6 +42,7 @@ class Triangle {
         inline const Vec3u& v() const {return _v;}
         inline const Vec3u& n() const {return _n;}
         inline const Vec3u& tex() const {return _tex;}
+        inline const GLuint& tex_id() const {return _tex_id;}
 
         /**
          * Sets
@@ -47,6 +50,7 @@ class Triangle {
         inline Vec3u& v() {return _v;}
         inline Vec3u& n() {return _n;}
         inline Vec3u& tex() {return _tex;}
+        inline GLuint& tex_id() {return _tex_id;}
 
         /**
          * Operators  

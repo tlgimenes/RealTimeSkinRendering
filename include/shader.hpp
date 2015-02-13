@@ -14,6 +14,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
+#include "mesh_gl.hpp"
 #include "error.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -23,12 +24,6 @@ class Shader
     public:
         Shader ();
         virtual ~Shader ();
-
-        /**
-         * Loads both vertex and fragment shaders from fileName
-         * */
-        void load_from_file(const std::string& vertex_shader_filename,
-                const std::string& fragment_shader_filename = "");
 
         /**
          * Binds shader
@@ -56,7 +51,13 @@ class Shader
         
         GLint get_uni_loc (const GLchar *name, GLuint program);
         inline GLint get_uni_loc(const GLchar *name) {return get_uni_loc(name, _shader_program);}
-        
+  
+        /**
+         * Loads both vertex and fragment shaders from fileName
+         * */
+        void load_from_file(const std::string& vertex_shader_filename,
+                const std::string& fragment_shader_filename = "");
+    
     private:
         GLuint _shader_program;
         GLuint _vertex_shader;

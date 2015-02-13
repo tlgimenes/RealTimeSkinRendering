@@ -13,11 +13,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-Triangle::Triangle(const Vec3u& v, const Vec3u& n, const Vec3u& tex)
+Triangle::Triangle(const Vec3u& v, const Vec3u& n, const Vec3u& tex, GLuint tex_id)
     :
         _v(v),
         _n(n),
-        _tex(tex)
+        _tex(tex),
+        _tex_id(tex_id)
 {
     /* Nothing to do here */
 }
@@ -29,6 +30,7 @@ inline Triangle& Triangle::operator= (const Triangle& t)
     _v = t.v();
     _n = t.n();
     _tex = t.tex();
+    _tex_id = t.tex_id();
 
     return (*this);
 }

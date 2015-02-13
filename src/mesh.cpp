@@ -34,7 +34,8 @@ bool is_mesh_correct(const std::vector<Vec3f>& _vertex_coord, const std::vector<
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void Mesh::recomputeNormals () 
+template <typename T>
+void Mesh<T>::recomputeNormals () 
 {
     is_mesh_correct(_vertex_coord, _triangles);
      _normals.resize(_vertex_coord.size());
@@ -56,7 +57,8 @@ void Mesh::recomputeNormals ()
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void Mesh::centerAndScaleToUnit () 
+template <typename T>
+void Mesh<T>::centerAndScaleToUnit () 
 {
     Vec3f c;
     for  (unsigned int i = 0; i < _vertex_coord.size (); i++)
@@ -73,4 +75,24 @@ void Mesh::centerAndScaleToUnit ()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+/**
+ *  Generates a vertex index array from the _triangles array 
+ * */
+template <typename T>
+uint* Mesh<T>::triangle_to_vertex_index_array() const
+{
+    uint* array = new uint[_triangles.size()*3];
+    uint j;
 
+    for(uint i=0; i < _triangles.size(); i++)
+    {
+        j = i*3;
+        array[j  ] = _triangles[i].v()[X];
+        array[j+1] = _triangles[i].v()[Y];
+        array[j+2] = _triangles[i].v()[Z];
+    }
+
+    return array;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////

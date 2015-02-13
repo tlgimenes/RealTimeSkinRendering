@@ -18,8 +18,10 @@
 
 #include "shader.hpp"
 #include "shader_phong.hpp"
+#include "shader_realskin.hpp"
 #include "mesh.hpp"
 #include "mesh_factory.hpp"
+#include "mesh_gl.hpp"
 #include "parser.hpp"
 #include "camera.hpp"
 #include "error.hpp"
@@ -40,8 +42,11 @@ static bool shader = true;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Global variables
-static Mesh* meshs;
-static Shader* skin_shader = NULL;
+static Mesh<uchar>* meshs = NULL;
+static MeshGL<uchar> *mesh_gl = NULL;
+static Shader* shader_realskin = NULL;
+static Shader* shader_phong = NULL;
+static Shader* curr_shader = NULL;
 static Camera* camera = NULL;
 static Vec3f background_color(0,0,0);
 
@@ -109,12 +114,15 @@ void init (const std::string& file_name) {
     }
     
     /* Init global variables */
-    meshs = &MeshFactory::load(file_name);
-    skin_shader = new ShaderPhong();
+    meshs = &MeshFactory<uchar>::load(file_name);
+    mesh_gl = new MeshGL<uchar>(*meshs);
     camera = new Camera();
+    shader_phong = new ShaderPhong();
+    shader_realskin = new ShaderRealskin();
+    curr_shader = shader_realskin;
 
     camera->resize (SCREENWIDTH, SCREENHEIGHT);
-    
+        
     // Specifies the faces to cull (here the ones pointing away from the camera)
     glCullFace (GL_BACK); 
 
@@ -148,7 +156,10 @@ void idle()
         counter = 0;
         static char winTitle [128];
         unsigned int numOfTriangles = meshs->triangle().size ();
-        sprintf (winTitle, "Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
+        if(curr_shader == shader_realskin)
+            sprintf (winTitle, "Shader: Real Skin - Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
+        else
+            sprintf (winTitle, "Shader: Phong - Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
         glutSetWindowTitle (winTitle);
         lastTime = currentTime;
     }
@@ -158,8 +169,8 @@ void idle()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-
-inline void draw()
+// Draw using OpenGL 2.0
+inline void drawGL2()
 {
     glBegin(GL_TRIANGLES);
 
@@ -168,7 +179,7 @@ inline void draw()
         for(unsigned int j=0; j < 3; j++) 
         {
             const Vec3f& v = meshs->vertex()[meshs->triangle()[i].v()[j]];
-            const Vec3f& n = meshs->normal()[meshs->triangle()[i].n()[j]];
+            const Vec3f& n = meshs->normal()[meshs->triangle()[i].v()[j]];
 
             glNormal3f (n[0], n[1], n[2]);
 
@@ -176,6 +187,18 @@ inline void draw()
         }
     }
     glEnd();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Draw using OpenGL 4.0
+inline void drawGL4()
+{
+    mesh_gl->bind();
+
+    //glDrawArrays(GL_TRIANGLES, 0, meshs->vertex().size());
+    glDrawElements(GL_TRIANGLES, mesh_gl->vertex_index_size(), GL_UNSIGNED_INT, NULL);
+    
+    mesh_gl->unbind();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +213,8 @@ void display()
 
     // Set up the modelview matrix and the projection matrix from the camera
     camera->apply();
-    draw ();
+    //drawGL2 ();
+    drawGL4();
 
     // Ensures any previous OpenGL call has been executed
     glFlush ();
@@ -214,8 +238,18 @@ void key(unsigned char key, int x, int y)
             wireframe = !wireframe;
             break;
         case 'g':
-            (shader ? skin_shader->unbind() : skin_shader->bind());
+            (shader ? curr_shader->unbind() : curr_shader->bind());
             shader = !shader;
+            break;
+        case '1': // Phong's shader 
+            curr_shader->unbind();
+            curr_shader = shader_phong;
+            curr_shader->bind();
+            break;
+        case '2': // Realskin's shader
+            curr_shader->unbind();
+            curr_shader = shader_realskin;
+            curr_shader->bind();
             break;
         case '+': // Zoom +
             camera->zoom(-0.2);

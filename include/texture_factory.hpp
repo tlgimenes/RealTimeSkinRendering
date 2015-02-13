@@ -1,39 +1,39 @@
 /*
  * =====================================================================================
- *       Filename:  mesh_factory.hpp
+ *       Filename:  texture_factory.hpp
  *    Description:  
- *        Created:  2015-02-12 22:06
+ *        Created:  2015-02-13 14:43
  *         Author:  Tiago Lobato Gimenes        (tlgimenes@gmail.com)
  * =====================================================================================
  */
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MESH_FACTORY_HPP
-#define MESH_FACTORY_HPP
+#ifndef TEXTURE_FACTORY_HPP
+#define TEXTURE_FACTORY_HPP
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh.hpp"
+#include "texture.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-class MeshFactory
+class TextureFactory
 {
     public:
-        static Mesh<T>& load(const std::string& mesh_file_path);
+        static Texture<T>& load(const std::string& file_path);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-template class MeshFactory<uchar>;
-template class MeshFactory<float>;
-template class MeshFactory<uint>;
+template class TextureFactory<uchar>;
+template class TextureFactory<float>;
+template class TextureFactory<uint>;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* !MESH_FACTORY_HPP */
+#endif /* !TEXTURE_FACTORY_HPP */
 
 ////////////////////////////////////////////////////////////////////////////////////////
 

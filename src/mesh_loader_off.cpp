@@ -17,7 +17,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void MeshLoaderOff::load(const std::string& filename, Mesh& mesh)
+template <typename T>
+void MeshLoaderOff<T>::load(const std::string& filename, Mesh<T>& mesh)
 {
     std::ifstream in (filename, std::ios_base::in);
 

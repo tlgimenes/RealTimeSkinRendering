@@ -104,13 +104,12 @@ void Shader::compile_attach(GLuint& shader, GLenum type, const std::string& sour
     GL_CHECK_FOR_ERRORS();
 
     glGetShaderiv (shader, GL_COMPILE_STATUS, &shaderCompiled);
-
     GL_CHECK_FOR_ERRORS();
 
     if (!shaderCompiled) {
-        __error(source, __FILE__, __LINE__);
+        __warning(source, __FILE__, __LINE__);
         print_shader_info_log (shader);
-    }
+     }
     glAttachShader (_shader_program, shader);
 }
 

@@ -60,6 +60,7 @@ class Texture
         inline const std::vector<T>& data() const {return _data;}
         inline uint height() const {return _height;}
         inline uint width() const {return _width;}
+        inline GLuint gl_tex_id() const {return _gl_tex_id;}
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

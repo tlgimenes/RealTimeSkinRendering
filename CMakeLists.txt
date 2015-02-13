@@ -41,7 +41,7 @@ target_link_libraries(skinrenderer
                      ${OPENGL_LIBRARIES} 
                      ${GLUT_LIBRARY}
                      ${GLEW_LIBRARIES}
-                     ${JPEG_LIBS}
+                     ${LIBJPEG_LIBRARY}
                      ${LIBOBJ_LIBRARY}
                      )
 

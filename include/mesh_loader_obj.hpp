@@ -15,7 +15,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include <obj.hpp>
-#include <functional>
 #include <vector>
 #include <map>
 
@@ -23,13 +22,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
+template <typename T>
 class MeshLoaderObj 
 {
     public:
         /**
          * Loads an obj file  
          * */
-        static void load(const std::string& filename, Mesh& mesh);
+        static void load(const std::string& filename, Mesh<T>& mesh);
 
         /**
          * callbacks for libobj  
@@ -124,8 +124,20 @@ class MeshLoaderObj
     
     private:
         // Current mesh beeing loaded
-        static Mesh* _curr_mesh;
+        static Mesh<T>* _curr_mesh;
+
+        // Current texture beeing used
+        static Texture<T>* _curr_tex;
+
+        // Maps texture name with texture id
+        static std::map<std::string, GLuint> _map_tex_id;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+template class MeshLoaderObj<uchar>;
+template class MeshLoaderObj<float>;
+template class MeshLoaderObj<uint>;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
