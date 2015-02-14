@@ -1,11 +1,14 @@
-// --------------------------------------------------------------------------
-// Simple fragment shader to fill.
-//
-// Copyright(C) 2007-2009                
-// Tamy Boubekeur
-//                                                                            
-// All rights reserved.                                                       
-// --------------------------------------------------------------------------
+/*
+ * =====================================================================================
+ *       Filename:  shader_realskin.frag
+ *    Description:  
+ *        Created:  2015-02-13 22:02
+ *         Author:  Tiago Lobato Gimenes        (tlgimenes@gmail.com)
+ * =====================================================================================
+ */
+
+// OpenGL 4.5 
+#version 450
 
 // Light properties
 uniform vec3 light_pos;
@@ -18,15 +21,25 @@ uniform vec4 mat_spec_color;
 uniform float mat_spec;
 uniform float mat_shininess;
 
+// Camera properties
+uniform mat4 inv_model_view_matrix;
+uniform mat4 view_matrix;
+uniform mat4 model_matrix;
+uniform mat4 proj_matrix;
+
 // 3D point properties
-varying vec4 P;
-varying vec3 N;
+in vec3 vertex_interp;
+in vec3 normal_interp;
+in vec3 raw_normal;
+
+// Output color
+out vec4 frag_color;
 
 void main (void) {
-    gl_FragColor = vec4 (0.0, 0.0, 0.0, 1);
-   
-    vec3 p = vec3 (gl_ModelViewMatrix * P);
-    vec3 n = normalize (gl_NormalMatrix * N);
+    frag_color = vec4(0.0, 0.0, 0.0, 1.0);
+    
+    vec3 p = vertex_interp;
+    vec3 n = normalize (normal_interp);
     vec3 l = normalize (light_pos - p);
     
     vec3 r = reflect (-l, n);
@@ -41,6 +54,6 @@ void main (void) {
     spec = pow ( max (0.0, dot(n, h)), mat_shininess);
     // ----------------------------------------
     
-    gl_FragColor += (mat_diff * diffuse * mat_diff_color + mat_spec * spec * mat_spec_color) * light_color;
+    frag_color += (mat_diff * diffuse * mat_diff_color + mat_spec * spec * mat_spec_color) * light_color;
 }
  

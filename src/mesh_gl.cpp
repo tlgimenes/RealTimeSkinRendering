@@ -50,7 +50,6 @@ MeshGL<T>::MeshGL(Mesh<T>& mesh) :
 
     /* Creates normal VBO */
     float* normal_array = to_array<3, float, Vec3f>(mesh.normal());
-    for(uint i=0; i < mesh.normal().size()*3; i++) normal_array[i] = 0;
     glGenBuffers (1, &_n_vbo);
     glBindBuffer (GL_ARRAY_BUFFER, _n_vbo);
     glBufferData (GL_ARRAY_BUFFER, mesh.normal().size() * sizeof(float) * 3, 

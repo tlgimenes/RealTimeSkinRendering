@@ -30,18 +30,6 @@
 #ifndef W
 #define W 3
 #endif
-#ifndef R
-#define R 0
-#endif
-#ifndef G
-#define G 1
-#endif
-#ifndef B
-#define B 2
-#endif
-#ifndef A
-#define A 3
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////
 

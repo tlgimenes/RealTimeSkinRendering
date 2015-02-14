@@ -47,16 +47,16 @@ void ShaderPhong::set_light_pos (const Vec3f& light_pos)
  
 void ShaderPhong::set_light_color (const Vec4f& light_color)
 {
-    glUniform4f(_light_color_location, light_color[R], light_color[G], light_color[B], 
-            light_color[A]);
+    glUniform4f(_light_color_location, light_color[X], light_color[Y], light_color[Z], 
+            light_color[W]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
 void ShaderPhong::set_mat_diffuse_color (const Vec4f& mat_diff_color)
 {
-    glUniform4f(_mat_diffuse_color_location, mat_diff_color[R], mat_diff_color[G], 
-            mat_diff_color[B], mat_diff_color[A]);
+    glUniform4f(_mat_diffuse_color_location, mat_diff_color[X], mat_diff_color[Y], 
+            mat_diff_color[Z], mat_diff_color[W]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -70,8 +70,8 @@ void ShaderPhong::set_mat_diffuse (float s)
 
 void ShaderPhong::set_mat_specular_color (const Vec4f& mat_spec_color)
 {
-    glUniform4f(_mat_specular_color_location, mat_spec_color[R], mat_spec_color[G], 
-            mat_spec_color[B], mat_spec_color[A]);
+    glUniform4f(_mat_specular_color_location, mat_spec_color[X], mat_spec_color[Y], 
+            mat_spec_color[Z], mat_spec_color[W]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -44,8 +44,8 @@ static bool shader = true;
 // Global variables
 static Mesh<uchar>* meshs = NULL;
 static MeshGL<uchar> *mesh_gl = NULL;
-static Shader* shader_realskin = NULL;
-static Shader* shader_phong = NULL;
+static ShaderRealskin* shader_realskin = NULL;
+static ShaderPhong* shader_phong = NULL;
 static Shader* curr_shader = NULL;
 static Camera* camera = NULL;
 static Vec3f background_color(0,0,0);
@@ -116,10 +116,12 @@ void init (const std::string& file_name) {
     /* Init global variables */
     meshs = &MeshFactory<uchar>::load(file_name);
     mesh_gl = new MeshGL<uchar>(*meshs);
-    camera = new Camera();
     shader_phong = new ShaderPhong();
     shader_realskin = new ShaderRealskin();
     curr_shader = shader_realskin;
+    camera = new Camera(shader_realskin->proj_matrix_location(),
+                        shader_realskin->view_matrix_location(),
+                        shader_realskin->model_matrix_location());
 
     camera->resize (SCREENWIDTH, SCREENHEIGHT);
         
@@ -252,10 +254,10 @@ void key(unsigned char key, int x, int y)
             curr_shader->bind();
             break;
         case '+': // Zoom +
-            camera->zoom(-0.2);
+            camera->zoom(0.2);
             break;
         case '-': // Zoom -
-            camera->zoom(0.2);
+            camera->zoom(-0.2);
             break;
         case 'q': // Quit
             exit(EXIT_SUCCESS);

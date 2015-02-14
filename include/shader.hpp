@@ -64,7 +64,6 @@ class Shader
         GLuint _fragment_shader;
         unsigned int _vertex_shader_size;
         unsigned int _fragment_shader_size;
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

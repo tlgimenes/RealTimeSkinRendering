@@ -1,25 +1,13 @@
-// --------------------------------------------------------------------------
-// gMini,
-// a minimal Glut/OpenGL app to extend                              
-//
-// Copyright(C) 2007-2009                
-// Tamy Boubekeur
-//                                                                            
-// All rights reserved.                                                       
-//                                                                            
-// This program is free software; you can redistribute it and/or modify       
-// it under the terms of the GNU General Public License as published by       
-// the Free Software Foundation; either version 2 of the License, or          
-// (at your option) any later version.                                        
-//                                                                            
-// This program is distributed in the hope that it will be useful,            
-// but WITHOUT ANY WARRANTY; without even the implied warranty of             
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              
-// GNU General Public License (http://www.gnu.org/licenses/gpl.txt)           
-// for more details.                                                          
-//                                                                          
-// --------------------------------------------------------------------------
+/*
+ * =====================================================================================
+ *       Filename:  shader_realskin.vert
+ *    Description:  
+ *        Created:  2015-02-13 22:02
+ *         Author:  Tiago Lobato Gimenes        (tlgimenes@gmail.com)
+ * =====================================================================================
+ */
 
+// OpenGL 4.5
 #version 450
 
 #define VERTEX 0
@@ -30,7 +18,22 @@ layout(location = VERTEX) in vec3 vertex;
 layout(location = NORMAL) in vec3 normal;
 layout(location = TEX_UV) in vec2 tex_uv;
 
+uniform mat4 proj_matrix;
+uniform mat4 view_matrix;
+uniform mat4 model_matrix;
+
+out vec3 vertex_interp;
+out vec3 normal_interp;
+
 void main(void)
 {
-           
+    mat4 model_view_matrix = view_matrix * model_matrix;
+    mat4 normal_matrix = transpose(inverse(model_view_matrix));
+
+    vec4 vertex_aux = model_view_matrix * vec4(vertex, 1.0f);
+
+    vertex_interp = vec3(vertex_aux) / vertex_aux.w;
+    normal_interp = vec3(normal_matrix * vec4(normal, 0.0f));
+
+    gl_Position = proj_matrix * model_view_matrix * vec4(vertex, 1.0f);
 }

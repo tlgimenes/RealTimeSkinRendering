@@ -24,6 +24,8 @@
 #include <GL/glut.h>
 #include <GL/glu.h>
 #include <iostream>
+#include <glm/ext.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 // ---------------------------------------------
 // BEGIN : Code from SGI
@@ -81,126 +83,175 @@ static float _x, _y, _z;
 static float __zoom;
 static bool ini = false;
 
-Camera::Camera () {
-  fovAngle = 45.0;
-  aspectRatio = 1.0;
-  nearPlane = 0.1;
-  farPlane = 10000.0;
-  
-  spinning = 0;
-  moving = 0;
-  beginu = 0;
-  beginv = 0;
-  
-  trackball (curquat, 0.0, 0.0, 0.0, 0.0);
-  x = y = z = 0.0;
-  _zoom = 3.0;
+Camera::Camera (GLuint a, GLuint b, GLuint c) {
+    _proj_matrix_location = a;
+    _view_matrix_location = b;
+    _model_matrix_location = c;
+
+    fovAngle = 45.0;
+    aspectRatio = 1.0;
+    nearPlane = 0.1;
+    farPlane = 10000.0;
+
+    spinning = 0;
+    moving = 0;
+    beginu = 0;
+    beginv = 0;
+
+    trackball (curquat, 0.0, 0.0, 0.0, 0.0);
+    x = y = 0.0;
+    z = 1.0f;
+    _zoom = 0.5;
+
+    update_projection();
+    update_view();
+    update_model();
 }
+
+inline void Camera::update_projection()
+{
+    _projection = glm::perspective(fovAngle, aspectRatio, nearPlane, farPlane);
+
+    glUniformMatrix4fv(_proj_matrix_location, 1, GL_FALSE, glm::value_ptr(_projection));
+    GL_CHECK_FOR_ERRORS();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+inline void Camera::update_view()
+{
+    _view = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, -z));
+
+    glUniformMatrix4fv(_view_matrix_location, 1, GL_FALSE, glm::value_ptr(_view));
+    GL_CHECK_FOR_ERRORS();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+inline void Camera::update_model()
+{
+    _model = glm::scale(glm::mat4(1.0f), glm::vec3(_zoom));
+
+    glUniformMatrix4fv(_model_matrix_location, 1, GL_FALSE, glm::value_ptr(_model));
+    GL_CHECK_FOR_ERRORS();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 
 void Camera::resize (int _w, int _h) {
-  h = _h;
-  w = _w;
-  glViewport (0, 0, (GLint)w, (GLint)h);
-  glMatrixMode (GL_PROJECTION);
-  glLoadIdentity ();
-  aspectRatio = static_cast<float>(w)/static_cast<float>(h);
-  gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane);
-  glMatrixMode (GL_MODELVIEW);
+    h = _h;
+    w = _w;
+    //glViewport (0, 0, (GLint)w, (GLint)h);
+    //glLoadIdentity ();
+    aspectRatio = static_cast<float>(w)/static_cast<float>(h);
+    update_projection();
+    //gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane);
+    //glMatrixMode (GL_MODELVIEW);
 }
 
 
 void Camera::initPos () {
-  if (!ini) {
-  _spinning = spinning;
-  _moving = moving;;
-  _beginu = beginu;
-  _beginv = beginv;
-  _curquat[0] = curquat[0];
-  _curquat[1] = curquat[1];
-  _curquat[2] = curquat[2];
-  _curquat[3] = curquat[3];
-  _x = x;
-  _y = y;
-  _z = z;;
-  __zoom = _zoom;
-  ini = true;
-  } else {
-    spinning = _spinning;
-    moving = _moving;;
-    beginu = _beginu;
-    beginv = _beginv;
-    curquat[0] = _curquat[0];
-    curquat[1] = _curquat[1];
-    curquat[2] = _curquat[2];
-    curquat[3] = _curquat[3];
-    x = _x;
-    y = _y;
-    z = _z;;
-    _zoom = __zoom;
-  } 
+    if (!ini) {
+        _spinning = spinning;
+        _moving = moving;;
+        _beginu = beginu;
+        _beginv = beginv;
+        _curquat[0] = curquat[0];
+        _curquat[1] = curquat[1];
+        _curquat[2] = curquat[2];
+        _curquat[3] = curquat[3];
+        _x = x;
+        _y = y;
+        _z = z;;
+        __zoom = _zoom;
+        ini = true;
+    } else {
+        spinning = _spinning;
+        moving = _moving;;
+        beginu = _beginu;
+        beginv = _beginv;
+        curquat[0] = _curquat[0];
+        curquat[1] = _curquat[1];
+        curquat[2] = _curquat[2];
+        curquat[3] = _curquat[3];
+        x = _x;
+        y = _y;
+        z = _z;;
+        _zoom = __zoom;
+    } 
 }
 
 
 void Camera::move (float dx, float dy, float dz) {
-  x += dx;
-  y += dy;
-  z += dz;
+    x += dx;
+    y += dy;
+    z += dz;
 }
 
 
 void Camera::beginRotate (int u, int v) {
-  beginu = u; 
-  beginv = v;
-  moving = 1;
-  spinning = 0;
+    beginu = u; 
+    beginv = v;
+    moving = 1;
+    spinning = 0;
 }
 
 
 void Camera::rotate (int u, int v) {
-  if (moving) {
-    trackball(lastquat,
-	      (2.0 * beginu - w) / w,
-	      (h - 2.0 * beginv) / h,
-	      (2.0 * u - w) / w,
-	      (h - 2.0 * v) / h);
-    beginu = u;
-    beginv = v;
-    spinning = 1;
-    add_quats (lastquat, curquat, curquat);
-  }
+    if (moving) {
+        trackball(lastquat,
+                (2.0 * beginu - w) / w,
+                (h - 2.0 * beginv) / h,
+                (2.0 * u - w) / w,
+                (h - 2.0 * v) / h);
+        beginu = u;
+        beginv = v;
+        spinning = 1;
+        add_quats (lastquat, curquat, curquat);
+    }
 }
 
 
 void Camera::endRotate () {
-  moving = false;
+    moving = false;
 }
 
 
 void Camera::zoom (float z) {
-  _zoom += z;
+    _zoom += z;
 }
 
 
 void Camera::apply () {
-  glLoadIdentity();
-  glTranslatef (x, y, z);
-  GLfloat m[4][4]; 
-  build_rotmatrix(m, curquat);
-  glTranslatef (0.0, 0.0, -_zoom);
-  glMultMatrixf(&m[0][0]);
+    //glLoadIdentity();
+    //glTranslatef (x, y, z);
+    update_model();
+    update_view();
+    GLfloat m[4][4]; 
+    build_rotmatrix(m, curquat);
+    glm::mat4 rot = glm::mat4(glm::vec4(glm::make_vec4(m[0])),
+            glm::vec4(glm::make_vec4(m[1])),
+            glm::vec4(glm::make_vec4(m[2])),
+            glm::vec4(glm::make_vec4(m[3])));
+    _view = _view * rot;
+    glUniformMatrix4fv(_view_matrix_location, 1, GL_FALSE, glm::value_ptr(_view));
+    GL_CHECK_FOR_ERRORS();
+
+    //glTranslatef (0.0, 0.0, -_zoom);
+    //glMultMatrixf(&m[0][0]);
 }
 
 
 void Camera::getPos (float & xx, float & yy, float & zz) {
-  GLfloat m[4][4]; 
-  build_rotmatrix(m, curquat);
-  float _x = -x;
-  float _y = -y;
-  float _z = -z + _zoom;
-  xx = m[0][0] * _x +  m[0][1] * _y +  m[0][2] * _z;
-  yy = m[1][0] * _x +  m[1][1] * _y +  m[1][2] * _z;
-  zz = m[2][0] * _x +  m[2][1] * _y +  m[2][2] * _z;
+    GLfloat m[4][4]; 
+    build_rotmatrix(m, curquat);
+    float _x = -x;
+    float _y = -y;
+    float _z = -z + _zoom;
+    xx = m[0][0] * _x +  m[0][1] * _y +  m[0][2] * _z;
+    yy = m[1][0] * _x +  m[1][1] * _y +  m[1][2] * _z;
+    zz = m[2][0] * _x +  m[2][1] * _y +  m[2][2] * _z;
 
 }
 
@@ -280,7 +331,7 @@ void Camera::getPos (float & xx, float & yy, float & zz) {
 static float tb_project_to_sphere(float, float, float);
 static void normalize_quat(float [4]);
 
-void
+    void
 vzero(float *v)
 {
     v[0] = 0.0;
@@ -288,7 +339,7 @@ vzero(float *v)
     v[2] = 0.0;
 }
 
-void
+    void
 vset(float *v, float x, float y, float z)
 {
     v[0] = x;
@@ -296,7 +347,7 @@ vset(float *v, float x, float y, float z)
     v[2] = z;
 }
 
-void
+    void
 vsub(const float *src1, const float *src2, float *dst)
 {
     dst[0] = src1[0] - src2[0];
@@ -304,7 +355,7 @@ vsub(const float *src1, const float *src2, float *dst)
     dst[2] = src1[2] - src2[2];
 }
 
-void
+    void
 vcopy(const float *v1, float *v2)
 {
     register int i;
@@ -312,7 +363,7 @@ vcopy(const float *v1, float *v2)
         v2[i] = v1[i];
 }
 
-void
+    void
 vcross(const float *v1, const float *v2, float *cross)
 {
     float temp[3];
@@ -323,13 +374,13 @@ vcross(const float *v1, const float *v2, float *cross)
     vcopy(temp, cross);
 }
 
-float
+    float
 vlength(const float *v)
 {
     return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 }
 
-void
+    void
 vscale(float *v, float div)
 {
     v[0] *= div;
@@ -337,19 +388,19 @@ vscale(float *v, float div)
     v[2] *= div;
 }
 
-void
+    void
 vnormal(float *v)
 {
     vscale(v,1.0/vlength(v));
 }
 
-float
+    float
 vdot(const float *v1, const float *v2)
 {
     return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
 }
 
-void
+    void
 vadd(const float *src1, const float *src2, float *dst)
 {
     dst[0] = src1[0] + src2[0];
@@ -369,7 +420,7 @@ vadd(const float *src1, const float *src2, float *dst)
  * It is assumed that the arguments to this routine are in the range
  * (-1.0 ... 1.0)
  */
-void
+    void
 trackball(float q[4], float p1x, float p1y, float p2x, float p2y)
 {
     float a[3]; /* Axis of rotation */
@@ -415,7 +466,7 @@ trackball(float q[4], float p1x, float p1y, float p2x, float p2y)
 /*
  *  Given an axis and angle, compute quaternion.
  */
-void
+    void
 axis_to_quat(float a[3], float phi, float q[4])
 {
     vnormal(a);
@@ -428,7 +479,7 @@ axis_to_quat(float a[3], float phi, float q[4])
  * Project an x,y pair onto a sphere of radius r OR a hyperbolic sheet
  * if we are away from the center of the sphere.
  */
-static float
+    static float
 tb_project_to_sphere(float r, float x, float y)
 {
     float d, t, z;
@@ -456,7 +507,7 @@ tb_project_to_sphere(float r, float x, float y)
 
 #define RENORMCOUNT 97
 
-void
+    void
 negate_quat(float q[4], float nq[4])
 {
     nq[0] = -q[0];
@@ -465,7 +516,7 @@ negate_quat(float q[4], float nq[4])
     nq[3] = q[3];
 }
 
-void
+    void
 add_quats(float q1[4], float q2[4], float dest[4])
 {
     static int count=0;
@@ -473,8 +524,8 @@ add_quats(float q1[4], float q2[4], float dest[4])
     float tf[4];
 
 #if 0
-printf("q1 = %f %f %f %f\n", q1[0], q1[1], q1[2], q1[3]);
-printf("q2 = %f %f %f %f\n", q2[0], q2[1], q2[2], q2[3]);
+    printf("q1 = %f %f %f %f\n", q1[0], q1[1], q1[2], q1[3]);
+    printf("q2 = %f %f %f %f\n", q2[0], q2[1], q2[2], q2[3]);
 #endif
 
     vcopy(q1,t1);
@@ -489,7 +540,7 @@ printf("q2 = %f %f %f %f\n", q2[0], q2[1], q2[2], q2[3]);
     tf[3] = q1[3] * q2[3] - vdot(q1,q2);
 
 #if 0
-printf("tf = %f %f %f %f\n", tf[0], tf[1], tf[2], tf[3]);
+    printf("tf = %f %f %f %f\n", tf[0], tf[1], tf[2], tf[3]);
 #endif
 
     dest[0] = tf[0];
@@ -515,7 +566,7 @@ printf("tf = %f %f %f %f\n", tf[0], tf[1], tf[2], tf[3]);
  * - Pletinckx, D., Quaternion calculus as a basic tool in computer
  *   graphics, The Visual Computer 5, 2-13, 1989.
  */
-static void
+    static void
 normalize_quat(float q[4])
 {
     int i;
@@ -529,7 +580,7 @@ normalize_quat(float q[4])
  * Build a rotation matrix, given a quaternion rotation.
  *
  */
-void
+    void
 build_rotmatrix(float m[4][4], float q[4])
 {
     m[0][0] = 1.0 - 2.0 * (q[1] * q[1] + q[2] * q[2]);

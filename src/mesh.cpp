@@ -17,6 +17,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef X
+#define X 0
+#endif
+#ifndef Y
+#define Y 1
+#endif
+#ifndef Z
+#define Z 2
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////
+
 bool is_mesh_correct(const std::vector<Vec3f>& _vertex_coord, const std::vector<Triangle>& _triangles)
 {
     for(uint i=0; i < _triangles.size(); i++)
