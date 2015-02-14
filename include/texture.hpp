@@ -52,7 +52,12 @@ class Texture
         /**
          * Binds the OpenGL texture associated to the object
          * */
-        void bind() const;
+        inline void bind() const {glBindTexture(GL_TEXTURE_2D, _gl_tex_id);}
+ 
+        /**
+         * UnBinds the OpenGL texture associated to the object
+         * */
+        inline void unbind() const {glBindTexture(GL_TEXTURE_2D, 0);}
 
         /**
          * Gets and sets 

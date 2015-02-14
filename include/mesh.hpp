@@ -47,6 +47,12 @@ class Mesh {
         uint* triangle_to_vertex_index_array() const;
 
         /**
+         * tex_uv vector isn't indexed using the same criterea as
+         * the _vertex or normals vector, we need to correct it
+         * */
+        void correct_tex_uv();
+
+        /**
          * Sets  
          * */
         inline std::vector<Triangle>& triangle() {return _triangles;}
@@ -63,6 +69,7 @@ class Mesh {
         inline const std::vector<Vec3f>& vertex() const {return _vertex_coord;}
         inline const std::vector<Vec3f>& normal() const {return _normals;}
         inline const std::map<GLuint, Texture<T>*>& textures() const {return _textures;}
+        std::vector<Texture<T>*>& texture_vec() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -15,8 +15,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "shader.hpp"
+#include "texture.hpp"
 #include "vec3.hpp"
 #include "vec4.hpp"
+
+#include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +52,7 @@ class ShaderRealskin : public Shader
         void set_mat_specular_color (const Vec4f& mat_spec_color);
         void set_mat_specular(float s);
         void set_mat_shininess (float s);
+        void set_tex_skin(int i);
 
         /**
          * Gets
@@ -56,21 +60,26 @@ class ShaderRealskin : public Shader
         inline GLuint proj_matrix_location () const { return _proj_matrix_location; }
         inline GLuint view_matrix_location () const { return _view_matrix_location; }
         inline GLuint model_matrix_location() const { return _model_matrix_location;}
-        inline GLuint inv_model_view_matrix() const { return _inv_model_view_location;}
 
     private:
+        // Light
         GLint _light_pos_location;
         GLint _light_color_location;
+
+        // Material
         GLint _mat_diffuse_color_location;
         GLint _mat_diffuse_location;
         GLint _mat_specular_color_location;
         GLint _mat_specular_location;
         GLint _mat_shininess_location;
 
+        // Projection and modelview matrices
         GLuint _proj_matrix_location;
         GLuint _view_matrix_location;
         GLuint _model_matrix_location;
-        GLuint _inv_model_view_location;
+
+        // Textures
+        GLuint _tex_skin_location;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

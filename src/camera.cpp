@@ -108,6 +108,21 @@ Camera::Camera (GLuint a, GLuint b, GLuint c) {
     update_model();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
+
+void Camera::reset_matrices(GLuint proj_loc, GLuint view_loc, GLuint model_loc)
+{
+    _proj_matrix_location = proj_loc;
+    _view_matrix_location = view_loc;
+    _model_matrix_location = model_loc;
+
+    update_projection();
+    update_view();
+    update_model();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
 inline void Camera::update_projection()
 {
     _projection = glm::perspective(fovAngle, aspectRatio, nearPlane, farPlane);

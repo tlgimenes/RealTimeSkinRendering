@@ -48,6 +48,9 @@ static ShaderRealskin* shader_realskin = NULL;
 static ShaderPhong* shader_phong = NULL;
 static Shader* curr_shader = NULL;
 static Camera* camera = NULL;
+static Camera* camera_phong = NULL;
+static Camera* camera_realskin = NULL;
+static std::vector<Texture<uchar>*>* textures = NULL;
 static Vec3f background_color(0,0,0);
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -116,14 +119,22 @@ void init (const std::string& file_name) {
     /* Init global variables */
     meshs = &MeshFactory<uchar>::load(file_name);
     mesh_gl = new MeshGL<uchar>(*meshs);
+    textures = &meshs->texture_vec();
+
     shader_phong = new ShaderPhong();
     shader_realskin = new ShaderRealskin();
-    curr_shader = shader_realskin;
-    camera = new Camera(shader_realskin->proj_matrix_location(),
-                        shader_realskin->view_matrix_location(),
-                        shader_realskin->model_matrix_location());
+  
+    shader_phong->bind();
+    curr_shader = shader_phong;
+
+    camera = new Camera(shader_phong->proj_matrix_location(),
+                        shader_phong->view_matrix_location(),
+                        shader_phong->model_matrix_location());
 
     camera->resize (SCREENWIDTH, SCREENHEIGHT);
+
+    mesh_gl->bind();
+    textures->at(2)->bind();
         
     // Specifies the faces to cull (here the ones pointing away from the camera)
     glCullFace (GL_BACK); 
@@ -140,7 +151,7 @@ void init (const std::string& file_name) {
     // Background color
     glClearColor (background_color[0], background_color[1], background_color[2], 0.0f);
 
-    // Enable Textures !!!
+    // Enable Textures !!r
     glEnable(GL_TEXTURE_2D);
 }
 
@@ -192,15 +203,16 @@ inline void drawGL2()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// Draw using OpenGL 4.0
+// Draw using OpenGL 4.5
 inline void drawGL4()
 {
-    mesh_gl->bind();
+    //textures->at(2)->bind();
+    //mesh_gl->bind();
 
-    //glDrawArrays(GL_TRIANGLES, 0, meshs->vertex().size());
     glDrawElements(GL_TRIANGLES, mesh_gl->vertex_index_size(), GL_UNSIGNED_INT, NULL);
     
-    mesh_gl->unbind();
+    //textures->at(2)->unbind();
+    //mesh_gl->unbind();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -239,19 +251,21 @@ void key(unsigned char key, int x, int y)
             glPolygonMode( GL_FRONT_AND_BACK, wireframe ? GL_FILL : GL_LINE);
             wireframe = !wireframe;
             break;
-        case 'g':
-            (shader ? curr_shader->unbind() : curr_shader->bind());
-            shader = !shader;
-            break;
         case '1': // Phong's shader 
             curr_shader->unbind();
+            shader_phong->bind();
+            camera->reset_matrices(shader_phong->proj_matrix_location(), 
+                                   shader_phong->view_matrix_location(),
+                                   shader_phong->model_matrix_location());
             curr_shader = shader_phong;
-            curr_shader->bind();
             break;
         case '2': // Realskin's shader
             curr_shader->unbind();
+            shader_realskin->bind();
+            camera->reset_matrices(shader_realskin->proj_matrix_location(),
+                                   shader_realskin->view_matrix_location(),
+                                   shader_realskin->model_matrix_location());
             curr_shader = shader_realskin;
-            curr_shader->bind();
             break;
         case '+': // Zoom +
             camera->zoom(0.2);

@@ -108,3 +108,35 @@ uint* Mesh<T>::triangle_to_vertex_index_array() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+void Mesh<T>::correct_tex_uv()
+{
+    std::vector<Vec2f> new_tex_uv(_vertex_coord.size());
+
+    for(uint i=0; i < _triangles.size(); i++)
+    {
+        new_tex_uv[_triangles[i].v()[0]] = _tex_uv[_triangles[i].tex()[0]];
+        new_tex_uv[_triangles[i].v()[1]] = _tex_uv[_triangles[i].tex()[1]];
+        new_tex_uv[_triangles[i].v()[2]] = _tex_uv[_triangles[i].tex()[2]];
+    }
+
+    _tex_uv.assign(new_tex_uv.begin(), new_tex_uv.end());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+std::vector<Texture<T>*>& Mesh<T>::texture_vec() const 
+{
+    std::vector<Texture<T>*>& tex = *(new std::vector<Texture<T>*>());
+
+    for(auto i = _textures.begin(); i != _textures.end(); i++)
+    {
+        tex.push_back(i->second);
+    }
+
+    return tex;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////

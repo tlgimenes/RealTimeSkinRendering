@@ -34,10 +34,21 @@ class MeshGL
         GLuint _v_vbo; // Vertex vbo
         GLuint _n_vbo; // Normal vbo
         GLuint _t_vbo; // Texture UV VBOs
+
+        GLuint _i_tex_vbo; // Index texture VBO
     
         GLuint _i_vbo; // Index vbo for _v_vbo and _n_vbo VBO
 
         size_t _i_vbo_size; // Size of _i_vbo
+
+    protected:
+        void load_vbos(Mesh<T>& mesh);
+ 
+        void load_index_buffer(Mesh<T>& mesh);
+
+        void load_vao(Mesh<T>& mesh);
+ 
+        void load_textures(Mesh<T>& mesh);
 
     public:
         MeshGL(Mesh<T>& mesh);

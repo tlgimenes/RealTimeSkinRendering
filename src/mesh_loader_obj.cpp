@@ -78,6 +78,8 @@ void MeshLoaderObj<T>::load(const std::string& filename, Mesh<T>& mesh)
 
     mesh.centerAndScaleToUnit();
     mesh.recomputeNormals();
+    // Normalize all texture indices to vertex index space
+    mesh.correct_tex_uv();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -310,6 +312,7 @@ template <typename T>
 void MeshLoaderObj<T>::group_name_cb(const std::string& name)
 {
     GLuint curr_id;
+
 
     if(MeshLoaderObj<T>::_map_tex_id.count(name) > 0)
     {

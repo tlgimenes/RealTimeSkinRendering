@@ -7,13 +7,16 @@
  * =====================================================================================
  */
 
+////////////////////////////////////////////////////////////////////////////////////////
 // OpenGL 4.5 
 #version 450
 
+////////////////////////////////////////////////////////////////////////////////////////
 // Light properties
 uniform vec3 light_pos;
 uniform vec4 light_color;
 
+////////////////////////////////////////////////////////////////////////////////////////
 // Material properties
 uniform vec4 mat_diff_color;
 uniform float mat_diff;
@@ -21,19 +24,28 @@ uniform vec4 mat_spec_color;
 uniform float mat_spec;
 uniform float mat_shininess;
 
+////////////////////////////////////////////////////////////////////////////////////////
 // Camera properties
 uniform mat4 inv_model_view_matrix;
 uniform mat4 view_matrix;
 uniform mat4 model_matrix;
 uniform mat4 proj_matrix;
 
-// 3D point properties
+////////////////////////////////////////////////////////////////////////////////////////
+// Textures
+uniform sampler2D tex_skin;
+
+////////////////////////////////////////////////////////////////////////////////////////
+// Parameters
 in vec3 vertex_interp;
 in vec3 normal_interp;
-in vec3 raw_normal;
+in vec2 tex_uv_interp;
 
-// Output color
+////////////////////////////////////////////////////////////////////////////////////////
+// Return: color
 out vec4 frag_color;
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 void main (void) {
     frag_color = vec4(0.0, 0.0, 0.0, 1.0);
@@ -45,7 +57,7 @@ void main (void) {
     vec3 r = reflect (-l, n);
     vec3 v = normalize (-p);
     
-    // ---------- Code à modifier -------------
+    // ---------- Phong's BRDF -------------
     float diffuse = 0.5;
     float spec = 0.5; 
  
@@ -54,6 +66,12 @@ void main (void) {
     spec = pow ( max (0.0, dot(n, h)), mat_shininess);
     // ----------------------------------------
     
+    // ---------- Texture -------------
+    vec4 tex = texture (tex_skin, tex_uv_interp);
+    // ----------------------------------------
+
     frag_color += (mat_diff * diffuse * mat_diff_color + mat_spec * spec * mat_spec_color) * light_color;
+    frag_color *= tex;
 }
- 
+
+////////////////////////////////////////////////////////////////////////////////////////

@@ -61,10 +61,12 @@ class Camera {
         void update_view();
         void update_model();
  
-        inline GLuint proj_matrix_location() {return _proj_matrix_location;};
-        inline GLuint view_matrix_location() {return _view_matrix_location;};
-        inline GLuint model_matrix_location(){return _model_matrix_location;};
+        inline GLuint& proj_matrix_location() {return _proj_matrix_location;};
+        inline GLuint& view_matrix_location() {return _view_matrix_location;};
+        inline GLuint& model_matrix_location(){return _model_matrix_location;};
  
+        void reset_matrices(GLuint proj_loc, GLuint view_loc, GLuint model_loc);
+            
     private:
         float fovAngle;
         float aspectRatio;

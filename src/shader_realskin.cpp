@@ -18,18 +18,24 @@ ShaderRealskin::ShaderRealskin() : Shader()
     load_from_file(REALSKIN_VERT_SHADER_PATH, REALSKIN_FRAG_SHADER_PATH);
     bind();
 
+    // Light
     _light_pos_location =          get_uni_loc("light_pos");
     _light_color_location =        get_uni_loc("light_color");
+    
+    // Material
     _mat_diffuse_color_location =  get_uni_loc("mat_diff_color");
     _mat_diffuse_location =        get_uni_loc("mat_diff");
     _mat_specular_color_location = get_uni_loc("mat_spec_color");
     _mat_specular_location =       get_uni_loc("mat_spec");
     _mat_shininess_location =      get_uni_loc("mat_shininess");
 
+    // Projection and modelview matrix
     _proj_matrix_location =        get_uni_loc("proj_matrix");
     _view_matrix_location =        get_uni_loc("view_matrix");
     _model_matrix_location =       get_uni_loc("model_matrix");
-    //_inv_model_view_location =     get_uni_loc("inv_model_view_matrix");
+
+    // Textures
+    _tex_skin_location =           get_uni_loc("tex_skin");
 
     set_light_pos(REALSKIN_LIGHT_POS_DEFAULT);
     set_light_color(REALSKIN_LIGHT_COLOR_DEFAULT);
@@ -39,6 +45,10 @@ ShaderRealskin::ShaderRealskin() : Shader()
     set_mat_specular_color(REALSKIN_MAT_SPEC_COLOR_DEFAULT);
     set_mat_specular(REALSKIN_MAT_SPEC_DEFAULT);
     set_mat_shininess(REALSKIN_MAT_SHININESS_DEFAULT);
+
+    set_tex_skin(0);
+
+    unbind();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -91,6 +101,13 @@ void ShaderRealskin::set_mat_specular(float s)
 void ShaderRealskin::set_mat_shininess (float s)
 {
     glUniform1f(_mat_shininess_location, s);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void ShaderRealskin::set_tex_skin(int i)
+{
+    glUniform1i(_tex_skin_location, i);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

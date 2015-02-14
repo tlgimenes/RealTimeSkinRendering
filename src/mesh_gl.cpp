@@ -41,6 +41,21 @@ MeshGL<T>::MeshGL(Mesh<T>& mesh) :
     _i_vbo(0),
     _i_vbo_size(0)
 {
+    load_vbos(mesh);
+
+    load_index_buffer(mesh);
+
+    load_vao(mesh);
+
+    glBindVertexArray (0);
+    glBindBuffer (GL_ARRAY_BUFFER, 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+void MeshGL<T>::load_vbos(Mesh<T>& mesh)
+{
     /* Creates Vertex VBO */
     float* vertex_array = to_array<3, float, Vec3f>(mesh.vertex());
     glGenBuffers (1, &_v_vbo);
@@ -61,7 +76,13 @@ MeshGL<T>::MeshGL(Mesh<T>& mesh) :
     glBindBuffer (GL_ARRAY_BUFFER, _t_vbo);
     glBufferData (GL_ARRAY_BUFFER, mesh.tex_uv().size() * sizeof(float) * 2, 
             tex_uv_array, GL_STATIC_DRAW);
+}
 
+////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+void MeshGL<T>::load_index_buffer(Mesh<T>& mesh)
+{
     /* Generates Vertex and Normal Index VBO */
     uint* vertex_index = mesh.triangle_to_vertex_index_array();
     _i_vbo_size = mesh.triangle().size() * 3;
@@ -69,7 +90,13 @@ MeshGL<T>::MeshGL(Mesh<T>& mesh) :
     glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, _i_vbo);
     glBufferData (GL_ELEMENT_ARRAY_BUFFER, _i_vbo_size * sizeof(uint), vertex_index, 
             GL_STATIC_DRAW);
+}
 
+////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+void MeshGL<T>::load_vao(Mesh<T>& mesh)
+{
     /* Generate VAO */
     glGenVertexArrays (1, &_vao);
     glBindVertexArray (_vao);
@@ -87,8 +114,14 @@ MeshGL<T>::MeshGL(Mesh<T>& mesh) :
     glEnableVertexAttribArray (NORMAL);
     glEnableVertexAttribArray (TEX_UV);
 
-    glBindVertexArray (0);
-    glBindBuffer (GL_ARRAY_BUFFER, 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+void MeshGL<T>::load_textures(Mesh<T>& mesh)
+{
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
