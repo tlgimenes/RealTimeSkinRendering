@@ -157,7 +157,7 @@ inline void Camera::update_model()
 void Camera::resize (int _w, int _h) {
     h = _h;
     w = _w;
-    //glViewport (0, 0, (GLint)w, (GLint)h);
+    glViewport (0, 0, (GLint)w, (GLint)h);
     //glLoadIdentity ();
     aspectRatio = static_cast<float>(w)/static_cast<float>(h);
     update_projection();

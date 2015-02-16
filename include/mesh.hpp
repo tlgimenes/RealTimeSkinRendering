@@ -35,6 +35,8 @@ class Mesh {
         std::map<GLuint, Texture<T>*> _textures; // Map between Texture and it's GL id
 
     public:
+        std::vector<Texture<T>*> _blured_textures;
+
         /// Compute smooth per-vertex normals
         void recomputeNormals ();
 

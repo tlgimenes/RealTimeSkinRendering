@@ -23,6 +23,7 @@ set(SRC
     shader.cpp 
     shader_phong.cpp
     shader_realskin.cpp
+    shader_blur.cpp
     )
 set(INC ${CMAKE_SOURCE_DIR}/include)
 

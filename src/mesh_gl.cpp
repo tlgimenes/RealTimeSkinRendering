@@ -39,6 +39,7 @@ MeshGL<T>::MeshGL(Mesh<T>& mesh) :
     _n_vbo(0),
     _t_vbo(0),
     _i_vbo(0),
+    _t_fbo(0),
     _i_vbo_size(0)
 {
     load_vbos(mesh);
@@ -46,6 +47,8 @@ MeshGL<T>::MeshGL(Mesh<T>& mesh) :
     load_index_buffer(mesh);
 
     load_vao(mesh);
+
+    load_fbos(mesh);
 
     glBindVertexArray (0);
     glBindBuffer (GL_ARRAY_BUFFER, 0);
@@ -122,6 +125,13 @@ template <typename T>
 void MeshGL<T>::load_textures(Mesh<T>& mesh)
 {
 
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+void MeshGL<T>::load_fbos(Mesh<T>& mesh)
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -19,6 +19,7 @@
 #include "shader.hpp"
 #include "shader_phong.hpp"
 #include "shader_realskin.hpp"
+#include "shader_blur.hpp"
 #include "mesh.hpp"
 #include "mesh_factory.hpp"
 #include "mesh_gl.hpp"
@@ -46,11 +47,13 @@ static Mesh<uchar>* meshs = NULL;
 static MeshGL<uchar> *mesh_gl = NULL;
 static ShaderRealskin* shader_realskin = NULL;
 static ShaderPhong* shader_phong = NULL;
+static ShaderBlur* shader_blur = NULL;
 static Shader* curr_shader = NULL;
 static Camera* camera = NULL;
 static Camera* camera_phong = NULL;
 static Camera* camera_realskin = NULL;
 static std::vector<Texture<uchar>*>* textures = NULL;
+static std::vector<GLuint> textures_ids;
 static Vec3f background_color(0,0,0);
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +69,8 @@ void key(unsigned char key, int x, int y); // key_pressed callbacks
 void reshape(int w, int h);
 void motion(int x, int y);
 void mouse(int button, int state, int x, int y);
+
+void drawGL4();
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -119,23 +124,25 @@ void init (const std::string& file_name) {
     /* Init global variables */
     meshs = &MeshFactory<uchar>::load(file_name);
     mesh_gl = new MeshGL<uchar>(*meshs);
-    textures = &meshs->texture_vec();
+    textures = &meshs->texture_vec(); 
+    textures_ids.push_back(textures->at(2)->gl_tex_id());
+    for(uint i=0; i < meshs->_blured_textures.size(); i++)
+        textures_ids.push_back(meshs->_blured_textures[i]->gl_tex_id());
+
+    mesh_gl->bind();
 
     shader_phong = new ShaderPhong();
     shader_realskin = new ShaderRealskin();
-  
-    shader_phong->bind();
+ 
     curr_shader = shader_phong;
+    curr_shader->bind();
 
-    camera = new Camera(shader_phong->proj_matrix_location(),
-                        shader_phong->view_matrix_location(),
-                        shader_phong->model_matrix_location());
+    camera = new Camera(curr_shader->proj_matrix_location(),
+                        curr_shader->view_matrix_location(),
+                        curr_shader->model_matrix_location());
 
-    camera->resize (SCREENWIDTH, SCREENHEIGHT);
+    camera->resize(SCREENWIDTH, SCREENHEIGHT);
 
-    mesh_gl->bind();
-    textures->at(2)->bind();
-        
     // Specifies the faces to cull (here the ones pointing away from the camera)
     glCullFace (GL_BACK); 
 
@@ -171,8 +178,10 @@ void idle()
         unsigned int numOfTriangles = meshs->triangle().size ();
         if(curr_shader == shader_realskin)
             sprintf (winTitle, "Shader: Real Skin - Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
-        else
+        else if(curr_shader == shader_phong)
             sprintf (winTitle, "Shader: Phong - Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
+        else if(curr_shader == shader_blur)
+            sprintf (winTitle, "Shader: Blur - Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
         glutSetWindowTitle (winTitle);
         lastTime = currentTime;
     }
@@ -182,35 +191,38 @@ void idle()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// Draw using OpenGL 2.0
-inline void drawGL2()
-{
-    glBegin(GL_TRIANGLES);
-
-    for(unsigned int i=0; i < meshs->triangle().size(); i++)
-    {
-        for(unsigned int j=0; j < 3; j++) 
-        {
-            const Vec3f& v = meshs->vertex()[meshs->triangle()[i].v()[j]];
-            const Vec3f& n = meshs->normal()[meshs->triangle()[i].v()[j]];
-
-            glNormal3f (n[0], n[1], n[2]);
-
-            glVertex3f (v[0], v[1], v[2]);
-        }
-    }
-    glEnd();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
 // Draw using OpenGL 4.5
 inline void drawGL4()
 {
     //textures->at(2)->bind();
     //mesh_gl->bind();
 
+    // Applies blur
+    //curr_shader->unbind();
+    //shader_blur->bind();
+
+    //camera->reset_matrices(shader_blur->proj_matrix_location(), shader_blur->view_matrix_location(), shader_blur->model_matrix_location());
+
+    //camera->apply();
+    //shader_blur->apply();
+    //shader_blur->unbind();
+
+    //shader_blur->apply();
+
+    glBindTextures(0, textures_ids.size(), textures_ids.data());
+   
+    // Applies normal shader
+    curr_shader->bind();
+
+    camera->reset_matrices(curr_shader->proj_matrix_location(),
+                           curr_shader->view_matrix_location(),
+                           curr_shader->model_matrix_location());
+
+    camera->apply();
+
     glDrawElements(GL_TRIANGLES, mesh_gl->vertex_index_size(), GL_UNSIGNED_INT, NULL);
-    
+ 
+    curr_shader->unbind();
     //textures->at(2)->unbind();
     //mesh_gl->unbind();
 }
@@ -219,15 +231,9 @@ inline void drawGL4()
 // Draw's
 void display()
 {
-    // Loads the identity matrix as the current OpenGL matrix
-    glLoadIdentity ();
-
-    // Erase the color and z buffers.
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Set up the modelview matrix and the projection matrix from the camera
-    camera->apply();
-    //drawGL2 ();
     drawGL4();
 
     // Ensures any previous OpenGL call has been executed
@@ -252,21 +258,29 @@ void key(unsigned char key, int x, int y)
             wireframe = !wireframe;
             break;
         case '1': // Phong's shader 
-            curr_shader->unbind();
             shader_phong->bind();
             camera->reset_matrices(shader_phong->proj_matrix_location(), 
                                    shader_phong->view_matrix_location(),
                                    shader_phong->model_matrix_location());
             curr_shader = shader_phong;
+            curr_shader->unbind();
             break;
         case '2': // Realskin's shader
-            curr_shader->unbind();
             shader_realskin->bind();
             camera->reset_matrices(shader_realskin->proj_matrix_location(),
                                    shader_realskin->view_matrix_location(),
                                    shader_realskin->model_matrix_location());
             curr_shader = shader_realskin;
+            curr_shader->unbind();
             break;
+        /*case '3': // Realskin's shader
+            shader_blur->bind();
+            camera->reset_matrices(shader_blur->proj_matrix_location(),
+                                   shader_blur->view_matrix_location(),
+                                   shader_blur->model_matrix_location());
+            curr_shader = shader_blur;
+            curr_shader->unbind();
+            break;*/
         case '+': // Zoom +
             camera->zoom(0.2);
             break;
@@ -283,7 +297,9 @@ void key(unsigned char key, int x, int y)
 ////////////////////////////////////////////////////////////////////////////////////////
 void reshape(int w, int h)
 {
+    curr_shader->bind();
     camera->resize(w, h);
+    curr_shader->unbind();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

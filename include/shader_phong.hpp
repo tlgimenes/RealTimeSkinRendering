@@ -24,11 +24,11 @@
 #define PHONG_VERT_SHADER_PATH "../shaders/shader_phong.vert"
 
 #define PHONG_LIGHT_POS_DEFAULT Vec3f(5.0, 5.0, 5.0)
-#define PHONG_LIGHT_COLOR_DEFAULT Vec4f(1.0, 1.0, 1.0, 1.0)
+#define PHONG_LIGHT_COLOR_DEFAULT Vec4f(1.5, 1.5, 1.5, 1.0)
 #define PHONG_MAT_DIFF_COLOR_DEFAULT Vec4f(1.0, 1.0, 1.0, 1.0)
 #define PHONG_MAT_DIFF_DEFAULT 0.5
 #define PHONG_MAT_SPEC_COLOR_DEFAULT Vec4f(1.0, 1.0, 1.0, 1.0)
-#define PHONG_MAT_SPEC_DEFAULT 0.5
+#define PHONG_MAT_SPEC_DEFAULT 0.000004
 #define PHONG_MAT_SHININESS_DEFAULT 0.5
 
 ////////////////////////////////////////////////////////////////////////////////////////

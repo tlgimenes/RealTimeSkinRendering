@@ -55,20 +55,22 @@ Texture<T>::~Texture()
 template <typename T> 
 void Texture<T>::gl_new_texture()
 {
+    // Creates new texture
     glGenTextures (1, &_gl_tex_id); GL_CHECK_FOR_ERRORS();   // Creates texture
     glBindTexture (GL_TEXTURE_2D, _gl_tex_id); GL_CHECK_FOR_ERRORS(); // Assigns the texture
-        // Sets texture parameters
+    
+    // Sets texture parameters
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); GL_CHECK_FOR_ERRORS();
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); GL_CHECK_FOR_ERRORS();
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); GL_CHECK_FOR_ERRORS();
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); GL_CHECK_FOR_ERRORS();
+    
     // Sets texture data
     gluBuild2DMipmaps (GL_TEXTURE_2D, GL_RGB, _width, _height, GL_RGB, 
             GL_UNSIGNED_BYTE, _data.data()); GL_CHECK_FOR_ERRORS();
+    
     // Unbinds texture
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

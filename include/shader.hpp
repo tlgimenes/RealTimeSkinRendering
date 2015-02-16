@@ -38,6 +38,10 @@ class Shader
         inline bool has_vertex_shader   () const { return (_vertex_shader_size > 0); }
         inline bool has_fragment_shader () const { return (_fragment_shader_size > 0); }
 
+        virtual GLuint proj_matrix_location() const {return 0;}
+        virtual GLuint view_matrix_location() const {return 0;}
+        virtual GLuint model_matrix_location() const {return 0;}
+
         /**
          * Gets
          * */

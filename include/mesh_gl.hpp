@@ -35,7 +35,7 @@ class MeshGL
         GLuint _n_vbo; // Normal vbo
         GLuint _t_vbo; // Texture UV VBOs
 
-        GLuint _i_tex_vbo; // Index texture VBO
+        GLuint _t_fbo; // Texture Frame buffer
     
         GLuint _i_vbo; // Index vbo for _v_vbo and _n_vbo VBO
 
@@ -49,6 +49,8 @@ class MeshGL
         void load_vao(Mesh<T>& mesh);
  
         void load_textures(Mesh<T>& mesh);
+
+        void load_fbos(Mesh<T>& mesh);
 
     public:
         MeshGL(Mesh<T>& mesh);
