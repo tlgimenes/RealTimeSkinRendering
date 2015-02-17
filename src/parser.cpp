@@ -10,7 +10,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "parser.hpp"
-#include "error.hpp"
+
+#include "sgl/error.hpp"
 
 #include <cstdlib>
 #include <iostream>

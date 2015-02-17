@@ -15,17 +15,24 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+#include <glm/vec3.hpp>
 
-#include "shader.hpp"
+#include "sgl/error.hpp"
+#include "sgl/mesh_host.hpp"
+#include "sgl/mesh_device.hpp"
+#include "sgl/camera_host.hpp"
+#include "sgl/camera_device.hpp"
+#include "sgl/texture_host.hpp"
+#include "sgl/texture_device.hpp"
+#include "sgl/mesh_loader_obj.hpp"
+#include "sgl/texture_loader_jpeg.hpp"
+#include "sgl/renderable.hpp"
+
+#include "parser.hpp"
 #include "shader_phong.hpp"
 #include "shader_realskin.hpp"
-#include "shader_blur.hpp"
-#include "mesh.hpp"
-#include "mesh_factory.hpp"
-#include "mesh_gl.hpp"
-#include "parser.hpp"
-#include "camera.hpp"
-#include "error.hpp"
+#include "head_phong.hpp"
+#include "head_realskin.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // GLUT variables
@@ -43,18 +50,12 @@ static bool shader = true;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Global variables
-static Mesh<uchar>* meshs = NULL;
-static MeshGL<uchar> *mesh_gl = NULL;
-static ShaderRealskin* shader_realskin = NULL;
-static ShaderPhong* shader_phong = NULL;
-static ShaderBlur* shader_blur = NULL;
-static Shader* curr_shader = NULL;
-static Camera* camera = NULL;
-static Camera* camera_phong = NULL;
-static Camera* camera_realskin = NULL;
-static std::vector<Texture<uchar>*>* textures = NULL;
-static std::vector<GLuint> textures_ids;
-static Vec3f background_color(0,0,0);
+static std::vector<std::shared_ptr<sgl::host::mesh>> mesh_vec;
+static head_phong* phong_head = NULL;
+static head_realskin* realskin_head = NULL;
+static sgl::device::renderable* curr_head = NULL;
+static sgl::host::camera* camera = NULL;
+static glm::vec3 background_color(0,0,0);
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Init function. This function initializes the global variables as well as
@@ -72,7 +73,7 @@ void mouse(int button, int state, int x, int y);
 
 void drawGL4();
 
-////////////////////////////////////////////////////////////////////////////////////////
+//src///////////////////////////////////////////////////////////////////////////////////
 
 /* ======= Function ==================================================
  *   Name: main
@@ -116,42 +117,51 @@ void init (const std::string& file_name) {
     /* Init GLEW */
     glewInit();
     if (glewGetExtension ("GL_ARB_vertex_shader")        != GL_TRUE ||
-        glewGetExtension ("GL_ARB_shader_objects")       != GL_TRUE ||
-        glewGetExtension ("GL_ARB_shading_language_100") != GL_TRUE) {
-        FATAL_ERROR("Driver does not support OpenGL Shading Language");
+            glewGetExtension ("GL_ARB_shader_objects")       != GL_TRUE ||
+            glewGetExtension ("GL_ARB_shading_language_100") != GL_TRUE) {
+        sgl::fatal_error("Driver does not support OpenGL Shading Language");
     }
-    
+
     /* Init global variables */
-    meshs = &MeshFactory<uchar>::load(file_name);
-    mesh_gl = new MeshGL<uchar>(*meshs);
-    textures = &meshs->texture_vec(); 
-    textures_ids.push_back(textures->at(2)->gl_tex_id());
-    for(uint i=0; i < meshs->_blured_textures.size(); i++)
-        textures_ids.push_back(meshs->_blured_textures[i]->gl_tex_id());
+    // load meshes
+    mesh_vec = sgl::mesh_loader_obj::load(file_name);
 
-    mesh_gl->bind();
-
-    shader_phong = new ShaderPhong();
-    shader_realskin = new ShaderRealskin();
- 
-    curr_shader = shader_phong;
-    curr_shader->bind();
-
-    camera = new Camera(curr_shader->proj_matrix_location(),
-                        curr_shader->view_matrix_location(),
-                        curr_shader->model_matrix_location());
-
+    // load camera
+    camera = new sgl::host::camera();
     camera->resize(SCREENWIDTH, SCREENHEIGHT);
+
+    // load shaders
+    std::shared_ptr<shader_phong> phong = std::make_shared<shader_phong>(shader_phong());
+    std::shared_ptr<shader_realskin> realskin = std::make_shared<shader_realskin>(shader_realskin());
+
+    // load textures 
+    std::shared_ptr<sgl::host::texture2D> skin = sgl::texture_loader_jpeg::load("../../../models/blondGirl/ModelsFace_skin_hi.jpg");
+    std::vector<std::shared_ptr<sgl::device::texture2D>> textures;
+    textures.push_back(skin->to_device());
+
+    // create a renderable object
+    curr_head = phong_head = new head_phong(mesh_vec[0]->to_device(), camera->to_device(), phong, textures);
+
+    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur0.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur1.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur2.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur3.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur4.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur5.jpg")->to_device());
+
+    realskin_head = new head_realskin(mesh_vec[0]->to_device(), camera->to_device(), realskin, textures);
+
+    gl_check_for_errors();
 
     // Specifies the faces to cull (here the ones pointing away from the camera)
     glCullFace (GL_BACK); 
 
     // Enables face culling (based on the orientation defined by the CW/CCW enumeration).
     glEnable (GL_CULL_FACE);
-    
+
     // Specify the depth test for the z-buffer
     glDepthFunc (GL_LESS);
-    
+
     // Enable the z-buffer in the rasterization)
     glEnable (GL_DEPTH_TEST); 
 
@@ -175,13 +185,9 @@ void idle()
         FPS = counter;
         counter = 0;
         static char winTitle [128];
-        unsigned int numOfTriangles = meshs->triangle().size ();
-        if(curr_shader == shader_realskin)
-            sprintf (winTitle, "Shader: Real Skin - Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
-        else if(curr_shader == shader_phong)
+        unsigned int numOfTriangles = mesh_vec[0]->faces()->size()/3;
+        if(curr_head == phong_head)
             sprintf (winTitle, "Shader: Phong - Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
-        else if(curr_shader == shader_blur)
-            sprintf (winTitle, "Shader: Blur - Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
         glutSetWindowTitle (winTitle);
         lastTime = currentTime;
     }
@@ -194,37 +200,13 @@ void idle()
 // Draw using OpenGL 4.5
 inline void drawGL4()
 {
-    //textures->at(2)->bind();
-    //mesh_gl->bind();
-
-    // Applies blur
-    //curr_shader->unbind();
-    //shader_blur->bind();
-
-    //camera->reset_matrices(shader_blur->proj_matrix_location(), shader_blur->view_matrix_location(), shader_blur->model_matrix_location());
-
-    //camera->apply();
-    //shader_blur->apply();
-    //shader_blur->unbind();
-
-    //shader_blur->apply();
-
-    glBindTextures(0, textures_ids.size(), textures_ids.data());
-   
-    // Applies normal shader
-    curr_shader->bind();
-
-    camera->reset_matrices(curr_shader->proj_matrix_location(),
-                           curr_shader->view_matrix_location(),
-                           curr_shader->model_matrix_location());
-
     camera->apply();
 
-    glDrawElements(GL_TRIANGLES, mesh_gl->vertex_index_size(), GL_UNSIGNED_INT, NULL);
- 
-    curr_shader->unbind();
-    //textures->at(2)->unbind();
-    //mesh_gl->unbind();
+    curr_head->bind();
+
+    curr_head->draw();
+
+    curr_head->unbind();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -258,29 +240,11 @@ void key(unsigned char key, int x, int y)
             wireframe = !wireframe;
             break;
         case '1': // Phong's shader 
-            shader_phong->bind();
-            camera->reset_matrices(shader_phong->proj_matrix_location(), 
-                                   shader_phong->view_matrix_location(),
-                                   shader_phong->model_matrix_location());
-            curr_shader = shader_phong;
-            curr_shader->unbind();
+            curr_head = phong_head;
             break;
-        case '2': // Realskin's shader
-            shader_realskin->bind();
-            camera->reset_matrices(shader_realskin->proj_matrix_location(),
-                                   shader_realskin->view_matrix_location(),
-                                   shader_realskin->model_matrix_location());
-            curr_shader = shader_realskin;
-            curr_shader->unbind();
+        case '2': // Phong's shader 
+            curr_head = realskin_head;
             break;
-        /*case '3': // Realskin's shader
-            shader_blur->bind();
-            camera->reset_matrices(shader_blur->proj_matrix_location(),
-                                   shader_blur->view_matrix_location(),
-                                   shader_blur->model_matrix_location());
-            curr_shader = shader_blur;
-            curr_shader->unbind();
-            break;*/
         case '+': // Zoom +
             camera->zoom(0.2);
             break;
@@ -297,9 +261,7 @@ void key(unsigned char key, int x, int y)
 ////////////////////////////////////////////////////////////////////////////////////////
 void reshape(int w, int h)
 {
-    curr_shader->bind();
     camera->resize(w, h);
-    curr_shader->unbind();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -330,7 +292,7 @@ void mouse(int button, int state, int x, int y)
         mouseZoomPressed = false;
     } else {
         if (button == GLUT_LEFT_BUTTON) {
-            camera->beginRotate (x, y);
+            camera->begin_rotate (x, y);
             mouseMovePressed = false;
             mouseRotatePressed = true;
             mouseZoomPressed = false;

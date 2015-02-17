@@ -134,7 +134,7 @@ void main (void) {
 
     frag_color = (mat_diff * diff * mat_light_color(tex_uv_interp) + mat_spec * spec * mat_spec_color) * light_color;
     //frag_color = diff *  tex;
-    whatever = texture(tex_skin, tex_uv_interp) * (mat_diff * diff * mat_light_color(tex_uv_interp) + mat_spec * spec * mat_spec_color) * light_color; 
+    whatever = tex * texture(tex_skin, tex_uv_interp) * (mat_diff * diff * mat_light_color(tex_uv_interp) + mat_spec * spec * mat_spec_color) * light_color; 
     frag_color *= tex;
 }
 

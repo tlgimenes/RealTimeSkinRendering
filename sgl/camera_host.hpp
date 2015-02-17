@@ -1,31 +1,18 @@
-// --------------------------------------------------------------------------
-// gMini,
-// a minimal Glut/OpenGL app to extend                              
-//
-// Copyright(C) 2007-2009                
-// Tamy Boubekeur
-//                                                                            
-// All rights reserved.                                                       
-//                                                                            
-// This program is free software; you can redistribute it and/or modify       
-// it under the terms of the GNU General Public License as published by       
-// the Free Software Foundation; either version 2 of the License, or          
-// (at your option) any later version.                                        
-//                                                                            
-// This program is distributed in the hope that it will be useful,            
-// but wIThOUT ANY wARRANTY; without even the implied warranty of             
-// MERChANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              
-// GNU General Public License (http://www.gnu.org/licenses/gpl.txt)           
-// for more details.                                                          
-//                                                                          
-// --------------------------------------------------------------------------
+/*
+ * =====================================================================================
+ *       Filename:  camera_host.hpp
+ *    Description:  
+ *        Created:  2015-02-16 16:42
+ *         Author:  Tiago Lobato Gimenes        (tlgimenes@gmail.com)
+ * =====================================================================================
+ */
 
-#include "camera.hpp"
-#include <GL/glut.h>
-#include <GL/glu.h>
-#include <iostream>
-#include <glm/ext.hpp>
-#include <glm/gtc/type_ptr.hpp>
+////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef CAMERA_HOST_HPP
+#define CAMERA_HOST_HPP
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 // ---------------------------------------------
 // BEGIN : Code from SGI
@@ -74,201 +61,230 @@ axis_to_quat(float a[3], float phi, float q[4]);
 // END : Code from SGI
 // ---------------------------------------------
 
-using namespace std;
+////////////////////////////////////////////////////////////////////////////////////////
 
-static int _spinning, _moving;
-static int _beginu, _beginv;
-static float _curquat[4];
-static float _x, _y, _z;
-static float __zoom;
-static bool ini = false;
+#include <memory>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
-Camera::Camera (GLuint a, GLuint b, GLuint c) {
-    _proj_matrix_location = a;
-    _view_matrix_location = b;
-    _model_matrix_location = c;
-
-    fovAngle = 45.0;
-    aspectRatio = 1.0;
-    nearPlane = 0.1;
-    farPlane = 10000.0;
-
-    spinning = 0;
-    moving = 0;
-    beginu = 0;
-    beginv = 0;
-
-    trackball (curquat, 0.0, 0.0, 0.0, 0.0);
-    x = y = 0.0;
-    z = 1.0f;
-    _zoom = 0.5;
-
-    update_projection();
-    update_view();
-    update_model();
-}
+#include "camera_device.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void Camera::reset_matrices(GLuint proj_loc, GLuint view_loc, GLuint model_loc)
+namespace sgl
 {
-    _proj_matrix_location = proj_loc;
-    _view_matrix_location = view_loc;
-    _model_matrix_location = model_loc;
+    namespace host
+    {
+        class camera 
+        {
+            private:
+                float _fov;             // field of view
+                int _width, _height;    // width and height in pixels
+                float _z_near, _z_far;  // plane near and plane far
 
-    update_projection();
-    update_view();
-    update_model();
-}
+                glm::vec3 _pos; // camera position
 
-////////////////////////////////////////////////////////////////////////////////////////
+                float _zoom; // camera zoom
 
-inline void Camera::update_projection()
-{
-    _projection = glm::perspective(fovAngle, aspectRatio, nearPlane, farPlane);
+                std::shared_ptr<glm::mat4> _proj, _view, _model; // Projection, view and model matrices
 
-    glUniformMatrix4fv(_proj_matrix_location, 1, GL_FALSE, glm::value_ptr(_projection));
-    GL_CHECK_FOR_ERRORS();
-}
+                float _curquat[4];
+                float _lastquat[4];
 
-////////////////////////////////////////////////////////////////////////////////////////
+                int _spinning, _moving;
+                int _beginu, _beginv;
 
-inline void Camera::update_view()
-{
-    _view = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, -z));
+            protected:
+                inline void update_projection() {
+                    *_proj = glm::perspective(_fov, (float)_width/ (float)_height, _z_near, _z_far);
+                }
 
-    glUniformMatrix4fv(_view_matrix_location, 1, GL_FALSE, glm::value_ptr(_view));
-    GL_CHECK_FOR_ERRORS();
-}
+                inline void update_view() {
+                    *_view = glm::translate(glm::mat4(1.0), glm::vec3(_pos[0], 
+                                _pos[1], -_pos[2]));
+                }
 
-////////////////////////////////////////////////////////////////////////////////////////
+                inline void update_model() {
+                    *_model = glm::scale(glm::mat4(1.0), glm::vec3(_zoom));
+                }
 
-inline void Camera::update_model()
-{
-    _model = glm::scale(glm::mat4(1.0f), glm::vec3(_zoom));
+                float tb_project_to_sphere(float r, float x, float y);
 
-    glUniformMatrix4fv(_model_matrix_location, 1, GL_FALSE, glm::value_ptr(_model));
-    GL_CHECK_FOR_ERRORS();
-}
+            public:
+                camera(int width = 800, int height = 600, float fov = 45, float z_near = 0.1, 
+                        float z_far = 10000.0, float zoom = 0.5, 
+                        glm::vec3 pos = glm::vec3(0.0, 0.0, 2.0));
+                inline virtual ~camera() {}
 
-////////////////////////////////////////////////////////////////////////////////////////
+                /**
+                 * Creates a camera with matrices on the device
+                 * */
+                std::shared_ptr<sgl::device::camera> to_device();
 
+                /**
+                 * Resize camera
+                 * */
+                void resize(int width, int height);
 
-void Camera::resize (int _w, int _h) {
-    h = _h;
-    w = _w;
-    glViewport (0, 0, (GLint)w, (GLint)h);
-    //glLoadIdentity ();
-    aspectRatio = static_cast<float>(w)/static_cast<float>(h);
-    update_projection();
-    //gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane);
-    //glMatrixMode (GL_MODELVIEW);
-}
+                /**
+                 * Move camera
+                 * */
+                void move(float dx, float dy, float dz);
 
+                /**
+                 * Starts rotation
+                 * */
+                void begin_rotate(int u, int v);
 
-void Camera::initPos () {
-    if (!ini) {
-        _spinning = spinning;
-        _moving = moving;;
-        _beginu = beginu;
-        _beginv = beginv;
-        _curquat[0] = curquat[0];
-        _curquat[1] = curquat[1];
-        _curquat[2] = curquat[2];
-        _curquat[3] = curquat[3];
-        _x = x;
-        _y = y;
-        _z = z;;
-        __zoom = _zoom;
-        ini = true;
-    } else {
-        spinning = _spinning;
-        moving = _moving;;
-        beginu = _beginu;
-        beginv = _beginv;
-        curquat[0] = _curquat[0];
-        curquat[1] = _curquat[1];
-        curquat[2] = _curquat[2];
-        curquat[3] = _curquat[3];
-        x = _x;
-        y = _y;
-        z = _z;;
-        _zoom = __zoom;
-    } 
-}
+                /**
+                 * Rotates the view  
+                 * */
+                void rotate(int u, int v);
 
+                /**
+                 * Zoom
+                 * */
+                void zoom(float zoom);
 
-void Camera::move (float dx, float dy, float dz) {
-    x += dx;
-    y += dy;
-    z += dz;
-}
+                /**
+                 * Apply transformations 
+                 * */
+                void apply();
 
-
-void Camera::beginRotate (int u, int v) {
-    beginu = u; 
-    beginv = v;
-    moving = 1;
-    spinning = 0;
-}
-
-
-void Camera::rotate (int u, int v) {
-    if (moving) {
-        trackball(lastquat,
-                (2.0 * beginu - w) / w,
-                (h - 2.0 * beginv) / h,
-                (2.0 * u - w) / w,
-                (h - 2.0 * v) / h);
-        beginu = u;
-        beginv = v;
-        spinning = 1;
-        add_quats (lastquat, curquat, curquat);
+                /**
+                 * Return the camera's positions
+                 * */
+                glm::vec3 pos();
+        };
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
 
-void Camera::endRotate () {
-    moving = false;
+sgl::host::camera::camera(int width, int height, float fov, float z_near, float z_far, 
+        float zoom, glm::vec3 pos) :
+    _width(width),
+    _height(height),
+    _fov(fov),
+    _z_near(z_near),
+    _z_far(z_far),
+    _zoom(zoom),
+    _pos(pos),
+    _proj(new glm::mat4()),
+    _view(new glm::mat4()),
+    _model(new glm::mat4())
+{
+    _spinning = 0;
+    _moving = 0;
+    _beginu = 0;
+    _beginv = 0;
+
+    trackball (_curquat, 0.0, 0.0, 0.0, 0.0);
+
+    update_projection();
+    update_view();
+    update_model();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
 
-void Camera::zoom (float z) {
-    _zoom += z;
+std::shared_ptr<sgl::device::camera> sgl::host::camera::to_device()
+{
+    return std::shared_ptr<sgl::device::camera>(new sgl::device::camera(_proj, _view, _model));
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
 
-void Camera::apply () {
-    //glLoadIdentity();
-    //glTranslatef (x, y, z);
+void sgl::host::camera::resize(int width, int height)
+{
+    _height = height;
+    _width = width;
+
+    glViewport(0, 0, _width, _height);
+    update_projection();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void sgl::host::camera::move(float dx, float dy, float dz)
+{
+    _pos[0] += dx;
+    _pos[1] += dy;
+    _pos[2] += dz;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void sgl::host::camera::begin_rotate(int u, int v) {
+    _beginu = u;
+    _beginv = v;
+    _moving = 1;
+    _spinning = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void sgl::host::camera::rotate(int u, int v)
+{
+    if (_moving) {
+        trackball(_lastquat,
+                (2.0 * _beginu - _width) / _width,
+                (_height - 2.0 * _beginv) / _height,
+                (2.0 * u - _width) / _width,
+                (_height - 2.0 * v) / _height);
+        _beginu = u;
+        _beginv = v;
+        _spinning = 1;
+        add_quats (_lastquat, _curquat, _curquat);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void sgl::host::camera::zoom(float zoom)
+{
+    _zoom += zoom;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void sgl::host::camera::apply()
+{
     update_model();
     update_view();
-    GLfloat m[4][4]; 
-    build_rotmatrix(m, curquat);
+    
+    GLfloat m[4][4];
+    build_rotmatrix(m, _curquat);
+ 
     glm::mat4 rot = glm::mat4(glm::vec4(glm::make_vec4(m[0])),
             glm::vec4(glm::make_vec4(m[1])),
             glm::vec4(glm::make_vec4(m[2])),
             glm::vec4(glm::make_vec4(m[3])));
-    _view = _view * rot;
-    glUniformMatrix4fv(_view_matrix_location, 1, GL_FALSE, glm::value_ptr(_view));
-    GL_CHECK_FOR_ERRORS();
 
-    //glTranslatef (0.0, 0.0, -_zoom);
-    //glMultMatrixf(&m[0][0]);
+    *_view = *_view * rot;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
 
-void Camera::getPos (float & xx, float & yy, float & zz) {
+glm::vec3 sgl::host::camera::pos()
+{
+    glm::vec3 p;
     GLfloat m[4][4]; 
-    build_rotmatrix(m, curquat);
-    float _x = -x;
-    float _y = -y;
-    float _z = -z + _zoom;
-    xx = m[0][0] * _x +  m[0][1] * _y +  m[0][2] * _z;
-    yy = m[1][0] * _x +  m[1][1] * _y +  m[1][2] * _z;
-    zz = m[2][0] * _x +  m[2][1] * _y +  m[2][2] * _z;
 
+    build_rotmatrix(m, _curquat);
+
+    float _x = -_pos[0];
+    float _y = -_pos[1];
+    float _z = -_pos[2] + _zoom;
+
+    p[0] = m[0][0] * _x +  m[0][1] * _y +  m[0][2] * _z;
+    p[1] = m[1][0] * _x +  m[1][1] * _y +  m[1][2] * _z;
+    p[2] = m[2][0] * _x +  m[2][1] * _y +  m[2][2] * _z;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 // ---------------------------------------------
 // BEGIN : Code from SGI
@@ -622,3 +638,10 @@ build_rotmatrix(float m[4][4], float q[4])
 // ---------------------------------------------
 // BEGIN : Code from SGI
 // ---------------------------------------------
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+#endif /* !CAMERA_HOST_HPP */
+
+////////////////////////////////////////////////////////////////////////////////////////
+

@@ -6,8 +6,8 @@ project(RealTimeSkinRendering)
 
 # Internal files
 set(SRC main.cpp)
-set(INC ${CMAKE_SOURCE_DIR}/include)
-set(SUBFOLDERS ${CMAKE_SOURCE_DIR}/src)
+set(INC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/inc)
+set(SUB_DIRS ${CMAKE_SOURCE_DIR}/src)
 set(C_FLAGS -std=c++11)
 
 # Compiler flags
@@ -15,7 +15,7 @@ add_definitions(${C_FLAGS})
 
 # Internal header files
 include_directories(${INC})
-subdirs(${SUBFOLDERS})
+subdirs(${SUB_DIRS})
 
 # Include FindOBJ.cmake in the path
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")

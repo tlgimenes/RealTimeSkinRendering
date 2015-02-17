@@ -1,39 +1,46 @@
 /*
  * =====================================================================================
- *       Filename:  mesh_factory.hpp
+ *       Filename:  head_phong.hpp
  *    Description:  
- *        Created:  2015-02-12 22:06
+ *        Created:  2015-02-17 09:23
  *         Author:  Tiago Lobato Gimenes        (tlgimenes@gmail.com)
  * =====================================================================================
  */
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MESH_FACTORY_HPP
-#define MESH_FACTORY_HPP
+#ifndef HEAD_PHONG_HPP
+#define HEAD_PHONG_HPP
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh.hpp"
+#include "sgl/renderable.hpp"
+
+#include "shader_phong.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T>
-class MeshFactory
+class head_phong : public sgl::device::renderable
 {
+    private:
+        
     public:
-        static Mesh<T>& load(const std::string& mesh_file_path);
+        head_phong(std::shared_ptr<sgl::device::mesh> m,
+                std::shared_ptr<sgl::device::camera> c,
+                std::shared_ptr<shader_phong> s,
+                std::vector<std::shared_ptr<sgl::device::texture2D>>& t) :
+            sgl::device::renderable(m, c, s, t) 
+    {
+        c->proj() = s->proj_matrix_location();
+        c->view() = s->view_matrix_location();
+        c->model() = s->model_matrix_location();
+    }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-template class MeshFactory<uchar>;
-template class MeshFactory<float>;
-template class MeshFactory<uint>;
-
-////////////////////////////////////////////////////////////////////////////////////////
-
-#endif /* !MESH_FACTORY_HPP */
+#endif /* !head_phong_HPP */
 
 ////////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,24 +1,34 @@
 /*
  * =====================================================================================
- *       Filename:  texture_loader_jpeg.cpp
+ *       Filename:  texture_loader_jpeg.hpp
  *    Description:  
- *        Created:  2015-02-01 22:10
+ *        Created:  2015-02-17 09:42
  *         Author:  Tiago Lobato Gimenes        (tlgimenes@gmail.com)
  * =====================================================================================
  */
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <cstdio>
-#include <cstdlib>
+#ifndef TEXTURE_LOADER_JPEG_HPP
+#define TEXTURE_LOADER_JPEG_HPP
+
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include <jpeglib.h>
-#include <fstream>
 #include <setjmp.h>
-#include <cstring>
 
-#include "texture_loader_jpeg.hpp"
+#include <glm/vec4.hpp>
 
-#include "error.hpp"
+////////////////////////////////////////////////////////////////////////////////////////
+
+namespace sgl
+{
+    class texture_loader_jpeg
+    {
+        public:
+            static std::shared_ptr<sgl::host::texture2D> load(const std::string& path);
+    };
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,10 +59,9 @@ libjpeg_error_exit(j_common_ptr cinfo)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T>
-Texture<T>& TextureLoaderJPEG<T>::load_texture(const std::string& filename) const
+std::shared_ptr<sgl::host::texture2D> sgl::texture_loader_jpeg::load(const std::string& filename) 
 {
-    std::vector<T> jpeg_data;
+    std::vector<unsigned char> jpeg_data;
 
     /* This struct contains the JPEG decompression parameters and pointers to
      * working space (which is allocated as needed by the JPEG library).
@@ -75,7 +84,7 @@ Texture<T>& TextureLoaderJPEG<T>::load_texture(const std::string& filename) cons
      */
 
     if ((infile = fopen(filename.c_str(), "rb")) == NULL) {
-        FATAL_ERROR("Can't open file");
+        sgl::fatal_error("Can't open file");
     }
 
     /* Step 1: allocate and initialize JPEG decompression object */
@@ -90,7 +99,7 @@ Texture<T>& TextureLoaderJPEG<T>::load_texture(const std::string& filename) cons
          */
         jpeg_destroy_decompress(&cinfo);
         fclose(infile);
-        FATAL_ERROR("Error in JPEG file");
+        sgl::fatal_error("Error in JPEG file");
     }
     /* Now we can initialize the JPEG decompression object. */
     jpeg_create_decompress(&cinfo);
@@ -179,8 +188,14 @@ Texture<T>& TextureLoaderJPEG<T>::load_texture(const std::string& filename) cons
 
     /* And we're done! */
 
-    return *(new Texture<T>(jpeg_data, cinfo.output_height, cinfo.output_width));
+    return std::make_shared<sgl::host::texture2D>(sgl::host::texture2D(
+                std::make_shared<std::vector<unsigned char>>(jpeg_data), 
+                (int)cinfo.output_height, (int)cinfo.output_width));
 }
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+#endif /* !TEXTURE_LOADER_JPEG_HPP */
 
 ////////////////////////////////////////////////////////////////////////////////////////
 

@@ -26,19 +26,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef NDEBUG
-#define ASSERT_FATAL_ERROR(boolean, str)
-#define ASSERT_WARNING_ERROR(boolean, str)
-#define GL_SAFE(code)
-#else
-#define ASSERT_FATAL_ERROR(boolean, str)  (void)(boolean || (__error(str, __FILE__, __LINE__),0))
-#define ASSERT_WARNING_ERROR(boolean, str) (void)(boolean || (__warning(str, __FILE__, __LINE__), 0))
-#define GL_SAFE(code) (void)(code == GL_NO_ERROR || (__error(gluErrorString(glGetError()), __FILE__, __LINE__),0))
-#endif
-
-#define FATAL_ERROR(str) __error(str, __FILE__, __LINE__)
-#define WARNING_ERROR(str) __warning(str, __FILE__, __LINE__)
-#define GL_CHECK_FOR_ERRORS() (void) (glGetError() == GL_NO_ERROR || (__error(std::string((char*)gluErrorString(glGetError())), __FILE__, __LINE__), 0))
+namespace sgl
+{
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -76,6 +65,23 @@ inline void __warning(const std::string& error_code, const std::string& file, in
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef NDEBUG
+#define assert_fatal_error(boolean, str)
+#define assert_warning_error(boolean, str)
+#define gl_safe(code)
+#else
+#define assert_fatal_error(boolean, str)  (void)(boolean || (__error(str, __FILE__, __LINE__),0))
+#define assert_warning_error(boolean, str) (void)(boolean || (__warning(str, __FILE__, __LINE__), 0))
+#define gl_safe(code) (void)(code == GL_NO_ERROR || (__error(gluErrorString(glGetError()), __FILE__, __LINE__),0))
+#endif
+
+#define fatal_error(str) __error(str, __FILE__, __LINE__)
+#define warning_error(str) __warning(str, __FILE__, __LINE__)
+#define gl_check_for_errors() (void) (glGetError() == GL_NO_ERROR || (sgl::__error(std::string((char*)gluErrorString(glGetError())), __FILE__, __LINE__), 0))
+#define gl_check_for_link_errors(program) sgl::__gl_check_for_link_errors(program, __FILE__, __LINE__)
+
+////////////////////////////////////////////////////////////////////////////////////////
+
 inline void __gl_check_for_errors(const std::string& file, int line)
 {
     GLenum gl_error_check = glGetError();
@@ -97,9 +103,9 @@ inline void print_shader_info_log (GLuint shader) {
     int charsWritten  = 0;
     GLchar *infoLog;
 
-    GL_CHECK_FOR_ERRORS();
+    gl_check_for_errors();
     glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &infologLength);
-    GL_CHECK_FOR_ERRORS();
+    gl_check_for_errors();
 
     if (infologLength > 0) {
         infoLog = new GLchar[infologLength];
@@ -111,7 +117,7 @@ inline void print_shader_info_log (GLuint shader) {
             __error("InfoLog: " + std::string(infoLog), __FILE__, __LINE__);
         delete [] infoLog;
     }
-    GL_CHECK_FOR_ERRORS();
+    gl_check_for_errors();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -122,9 +128,9 @@ inline void print_program_info_log (GLuint program)
     int charsWritten  = 0;
     GLchar *infoLog;
 
-    GL_CHECK_FOR_ERRORS();
+    gl_check_for_errors();
     glGetProgramiv (program, GL_INFO_LOG_LENGTH, &infologLength);
-    GL_CHECK_FOR_ERRORS();
+    gl_check_for_errors();
 
     if (infologLength > 0) {
         infoLog = new GLchar[infologLength];
@@ -136,7 +142,24 @@ inline void print_program_info_log (GLuint program)
             __error("InfoLog: " + std::string(infoLog), __FILE__, __LINE__);
         delete [] infoLog;
     }
-    GL_CHECK_FOR_ERRORS();
+    gl_check_for_errors();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+inline void __gl_check_for_link_errors(GLuint program, const std::string& file, int line)
+{
+    GLint linked;
+
+    glGetProgramiv (program, GL_LINK_STATUS, &linked);
+    print_program_info_log(program);
+
+    if (!linked) 
+        __error("Shader not linked", file, line);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
