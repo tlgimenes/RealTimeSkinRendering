@@ -95,7 +95,7 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-sgl::device::mesh::mesh(std::shared_ptr<std::vector<glm::vec3>> vertex,
+inline sgl::device::mesh::mesh(std::shared_ptr<std::vector<glm::vec3>> vertex,
                         std::shared_ptr<std::vector<glm::vec3>> normal,
                         std::shared_ptr<std::vector<glm::vec2>> tex_uv,
                         std::shared_ptr<std::vector<int>> faces) :
@@ -135,7 +135,7 @@ sgl::device::mesh::mesh(std::shared_ptr<std::vector<glm::vec3>> vertex,
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-sgl::device::mesh::mesh(const mesh& m) :
+inline sgl::device::mesh::mesh(const mesh& m) :
     _vertex(m.vertex()),
     _normal(m.normal()),
     _tex_uv(m.tex_uv()),
@@ -148,7 +148,7 @@ sgl::device::mesh::mesh(const mesh& m) :
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-GLuint sgl::device::mesh::new_vbo(std::vector<float>& data)
+inline GLuint sgl::device::mesh::new_vbo(std::vector<float>& data)
 {
     GLuint vbo;
 
@@ -165,7 +165,7 @@ GLuint sgl::device::mesh::new_vbo(std::vector<float>& data)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-GLuint sgl::device::mesh::new_index(std::vector<int>& faces)
+inline GLuint sgl::device::mesh::new_index(std::vector<int>& faces)
 {
     GLuint index;
 
@@ -182,7 +182,7 @@ GLuint sgl::device::mesh::new_index(std::vector<int>& faces)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-GLuint sgl::device::mesh::new_vao()
+inline GLuint sgl::device::mesh::new_vao()
 {
     GLuint vao;
 

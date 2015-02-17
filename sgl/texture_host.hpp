@@ -58,7 +58,7 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-sgl::host::texture2D::texture2D(std::shared_ptr<std::vector<unsigned char>> pixels, int height, 
+inline sgl::host::texture2D::texture2D(std::shared_ptr<std::vector<unsigned char>> pixels, int height, 
         int width) :
     _pixels(pixels),
     _height(height),
@@ -69,7 +69,7 @@ sgl::host::texture2D::texture2D(std::shared_ptr<std::vector<unsigned char>> pixe
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<sgl::device::texture2D> sgl::host::texture2D::to_device()
+inline std::shared_ptr<sgl::device::texture2D> sgl::host::texture2D::to_device()
 {
     return std::shared_ptr<sgl::device::texture2D>(new sgl::device::texture2D(_pixels, 
                 _height, _width));

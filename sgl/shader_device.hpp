@@ -69,7 +69,7 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-sgl::device::shader::shader(const std::string& vert_path, const std::string& frag_path) :
+inline sgl::device::shader::shader(const std::string& vert_path, const std::string& frag_path) :
     _shader_program      (0),
     _vertex_shader       (0),
     _fragment_shader     (0)
@@ -92,7 +92,7 @@ sgl::device::shader::shader(const std::string& vert_path, const std::string& fra
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-sgl::device::shader::~shader () 
+inline sgl::device::shader::~shader () 
 {
     //glDeleteShader (_vertex_shader);
     //glDeleteShader (_fragment_shader);
@@ -101,7 +101,7 @@ sgl::device::shader::~shader ()
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::device::shader::compile_attach(GLuint& shader, GLenum type, const std::string& source)
+inline void sgl::device::shader::compile_attach(GLuint& shader, GLenum type, const std::string& source)
 {
     GLint shaderCompiled;
     const GLchar * src = source.c_str();
@@ -123,7 +123,7 @@ void sgl::device::shader::compile_attach(GLuint& shader, GLenum type, const std:
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-GLint sgl::device::shader::get_uni_loc(const GLchar* name, GLuint program)
+inline GLint sgl::device::shader::get_uni_loc(const GLchar* name, GLuint program)
 {
     GLint loc = glGetUniformLocation (program, name);
 

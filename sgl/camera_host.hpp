@@ -110,8 +110,6 @@ namespace sgl
                     *_model = glm::scale(glm::mat4(1.0), glm::vec3(_zoom));
                 }
 
-                float tb_project_to_sphere(float r, float x, float y);
-
             public:
                 camera(int width = 800, int height = 600, float fov = 45, float z_near = 0.1, 
                         float z_far = 10000.0, float zoom = 0.5, 
@@ -163,7 +161,7 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-sgl::host::camera::camera(int width, int height, float fov, float z_near, float z_far, 
+inline sgl::host::camera::camera(int width, int height, float fov, float z_near, float z_far, 
         float zoom, glm::vec3 pos) :
     _width(width),
     _height(height),
@@ -190,14 +188,14 @@ sgl::host::camera::camera(int width, int height, float fov, float z_near, float 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<sgl::device::camera> sgl::host::camera::to_device()
+inline std::shared_ptr<sgl::device::camera> sgl::host::camera::to_device()
 {
     return std::shared_ptr<sgl::device::camera>(new sgl::device::camera(_proj, _view, _model));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::host::camera::resize(int width, int height)
+inline void sgl::host::camera::resize(int width, int height)
 {
     _height = height;
     _width = width;
@@ -208,7 +206,7 @@ void sgl::host::camera::resize(int width, int height)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::host::camera::move(float dx, float dy, float dz)
+inline void sgl::host::camera::move(float dx, float dy, float dz)
 {
     _pos[0] += dx;
     _pos[1] += dy;
@@ -217,7 +215,7 @@ void sgl::host::camera::move(float dx, float dy, float dz)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::host::camera::begin_rotate(int u, int v) {
+inline void sgl::host::camera::begin_rotate(int u, int v) {
     _beginu = u;
     _beginv = v;
     _moving = 1;
@@ -226,7 +224,7 @@ void sgl::host::camera::begin_rotate(int u, int v) {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::host::camera::rotate(int u, int v)
+inline void sgl::host::camera::rotate(int u, int v)
 {
     if (_moving) {
         trackball(_lastquat,
@@ -243,14 +241,14 @@ void sgl::host::camera::rotate(int u, int v)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::host::camera::zoom(float zoom)
+inline void sgl::host::camera::zoom(float zoom)
 {
     _zoom += zoom;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::host::camera::apply()
+inline void sgl::host::camera::apply()
 {
     update_model();
     update_view();
@@ -268,7 +266,7 @@ void sgl::host::camera::apply()
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-glm::vec3 sgl::host::camera::pos()
+inline glm::vec3 sgl::host::camera::pos()
 {
     glm::vec3 p;
     GLfloat m[4][4]; 

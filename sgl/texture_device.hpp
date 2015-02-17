@@ -59,7 +59,7 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-sgl::device::texture2D::texture2D(std::shared_ptr<std::vector<unsigned char>> pixels, 
+inline sgl::device::texture2D::texture2D(std::shared_ptr<std::vector<unsigned char>> pixels, 
         int height, int width)
 {
     _id = new_texture(pixels->data(), height, width);
@@ -67,14 +67,14 @@ sgl::device::texture2D::texture2D(std::shared_ptr<std::vector<unsigned char>> pi
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-sgl::device::texture2D::texture2D(const texture2D& texture)
+inline sgl::device::texture2D::texture2D(const texture2D& texture)
 {
     _id = texture.id();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-GLuint sgl::device::texture2D::new_texture(unsigned char* data, int height, int width)
+inline GLuint sgl::device::texture2D::new_texture(unsigned char* data, int height, int width)
 {
     GLuint id;
 

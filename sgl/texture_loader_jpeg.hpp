@@ -59,7 +59,7 @@ libjpeg_error_exit(j_common_ptr cinfo)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<sgl::host::texture2D> sgl::texture_loader_jpeg::load(const std::string& filename) 
+inline std::shared_ptr<sgl::host::texture2D> sgl::texture_loader_jpeg::load(const std::string& filename) 
 {
     std::vector<unsigned char> jpeg_data;
 

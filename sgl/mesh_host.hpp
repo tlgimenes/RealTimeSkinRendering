@@ -47,7 +47,7 @@ namespace sgl
                 /**
                  * Loads mesh in host to device 
                  * */
-                inline std::shared_ptr<sgl::device::mesh> to_device();
+                std::shared_ptr<sgl::device::mesh> to_device();
 
                 /**
                  * Recompute normals. One normal per vertex
@@ -57,12 +57,12 @@ namespace sgl
                 /**
                  * Center vertex to origin
                  * */
-                inline void center();
+                void center();
 
                 /**
                  * Scale mesh to unit
                  * */
-                inline void scale_to_unit();
+                void scale_to_unit();
 
                 /**
                  * Gets
@@ -93,7 +93,7 @@ inline std::shared_ptr<sgl::device::mesh> sgl::host::mesh::to_device()
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::host::mesh::recompute_normals()
+inline void sgl::host::mesh::recompute_normals()
 {
     _normal->resize(_vertex->size());
 

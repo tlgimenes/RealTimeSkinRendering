@@ -56,7 +56,7 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-sgl::device::camera::camera(std::shared_ptr<glm::mat4>& proj_mat, 
+inline sgl::device::camera::camera(std::shared_ptr<glm::mat4>& proj_mat, 
         std::shared_ptr<glm::mat4>& view_mat, std::shared_ptr<glm::mat4>& model_mat, 
         GLuint proj, GLuint view, GLuint model) :
     _proj_mat(proj_mat),
@@ -71,7 +71,7 @@ sgl::device::camera::camera(std::shared_ptr<glm::mat4>& proj_mat,
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::device::camera::update_projection()
+inline void sgl::device::camera::update_projection()
 {
     glUniformMatrix4fv(_proj, 1, GL_FALSE, glm::value_ptr(*_proj_mat));
     gl_check_for_errors();
@@ -79,7 +79,7 @@ void sgl::device::camera::update_projection()
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::device::camera::update_view()
+inline void sgl::device::camera::update_view()
 {
     glUniformMatrix4fv(_view, 1, GL_FALSE, glm::value_ptr(*_view_mat));
     gl_check_for_errors();
@@ -87,7 +87,7 @@ void sgl::device::camera::update_view()
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::device::camera::update_model()
+inline void sgl::device::camera::update_model()
 {
     glUniformMatrix4fv(_model, 1, GL_FALSE, glm::value_ptr(*_model_mat));
     gl_check_for_errors();

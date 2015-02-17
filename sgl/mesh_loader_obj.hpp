@@ -36,7 +36,7 @@ namespace sgl
              * @returns: vector of meshes - each mesh correspond to a different
              * group in the obj Filename
              * */
-            static std::vector<std::shared_ptr<sgl::host::mesh>>& load(const std::string& path);
+            inline static std::vector<std::shared_ptr<sgl::host::mesh>>& load(const std::string& path);
 
             /**
              * callbacks for libobj  
@@ -154,7 +154,7 @@ std::shared_ptr<std::vector<std::pair<int, int>>> sgl::mesh_loader_obj::_index;
 ////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename B>
-std::pair<std::shared_ptr<std::vector<B>>, std::shared_ptr<std::vector<int>>> merge_indices( 
+inline std::pair<std::shared_ptr<std::vector<B>>, std::shared_ptr<std::vector<int>>> merge_indices( 
         std::shared_ptr<std::vector<B>>& change, 
         std::shared_ptr<std::vector<std::pair<int, int>>>& index)
 {
