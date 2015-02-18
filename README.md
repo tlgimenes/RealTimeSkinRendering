@@ -22,13 +22,22 @@ Open a terminal and type
 
     skinrenderer -p <path_to_file>
 
+**WARNING:** *this command is currently not working because of a buggy .obj
+loader, sorry !*
 where the argument is the path to the 3D model and it's textures. If you want
 more options, type 
 
     skinrenderer -h
 
+Details
+---------------
+If you want to know more details about the implementation, please read the file
+doc/SkinRendering.pdf
+
+Thanks ! :)
+
 TODO
 ---------------
-- [x] Implement base classes of the rendereing engine
-- [ ] Implement .obj parser and loader
-- [ ] Implement skin shader
+- [x] Implement base classes of the rendereing engine [DONE]
+- [x] Implement .obj parser and loader [BUGGY]
+- [x] Implement skin shader [INCOMPLETE]
