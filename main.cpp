@@ -140,8 +140,7 @@ void init (const std::string& file_name) {
     textures.push_back(skin->to_device());
 
     // create a renderable object
-    curr_head = phong_head = new head_phong(mesh_vec[0]->to_device(), camera->to_device(), phong, textures);
-
+    curr_head = phong_head = new head_phong(mesh_vec[2]->to_device(), camera->to_device(), phong, textures);
     textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur0.jpg")->to_device());
     textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur1.jpg")->to_device());
     textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur2.jpg")->to_device());
@@ -149,7 +148,7 @@ void init (const std::string& file_name) {
     textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur4.jpg")->to_device());
     textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur5.jpg")->to_device());
 
-    realskin_head = new head_realskin(mesh_vec[0]->to_device(), camera->to_device(), realskin, textures);
+    realskin_head = new head_realskin(mesh_vec[2]->to_device(), camera->to_device(), realskin, textures);
 
     gl_check_for_errors();
 
@@ -246,10 +245,10 @@ void key(unsigned char key, int x, int y)
             curr_head = realskin_head;
             break;
         case '+': // Zoom +
-            camera->zoom(0.2);
+            camera->zoom(1.05);
             break;
         case '-': // Zoom -
-            camera->zoom(-0.2);
+            camera->zoom(0.95);
             break;
         case 'q': // Quit
             exit(EXIT_SUCCESS);

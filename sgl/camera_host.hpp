@@ -243,7 +243,7 @@ inline void sgl::host::camera::rotate(int u, int v)
 
 inline void sgl::host::camera::zoom(float zoom)
 {
-    _zoom += zoom;
+    _zoom *= zoom;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -54,7 +54,7 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-sgl::device::renderable::renderable(
+inline sgl::device::renderable::renderable(
         std::shared_ptr<mesh> mesh,    // Mesh
         std::shared_ptr<camera> camera, // Camera
         std::shared_ptr<shader> shader, // Shader 
@@ -72,7 +72,7 @@ sgl::device::renderable::renderable(
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::device::renderable::draw()
+inline void sgl::device::renderable::draw()
 {
     glDrawElements(GL_TRIANGLES, _mesh->index_count(), GL_UNSIGNED_INT, NULL);
 
@@ -81,7 +81,7 @@ void sgl::device::renderable::draw()
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::device::renderable::bind()
+inline void sgl::device::renderable::bind()
 {
     _mesh->bind();
     _shader->bind();
@@ -92,7 +92,7 @@ void sgl::device::renderable::bind()
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void sgl::device::renderable::unbind()
+inline void sgl::device::renderable::unbind()
 {
     _shader->unbind();
     _camera->unbind();
