@@ -28,10 +28,18 @@
 Options: \n\
   -p: Set the path to the 3D model \n\
   -h: Display this information \n\
+Commands: \n\
+    1: Phong's BRDF \n\
+    2: Realskin's engine \n\
+    w: Wireframe \n\
+    f: Fullscreen \n\
+    +: Zoom in \n\
+    -: Zoom out \n\
+    q: Exit \n\
 \n\
 Skin renderer - An skin engine based on the NVIDIA's skin rendering demo \n\
 Authors: \n\
-    Tiago Lobato Gimenes - (tlgimenes@gmail.com)\n" 
+    Tiago Lobato Gimenes - (tlgimenes@gmail.com)" 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 

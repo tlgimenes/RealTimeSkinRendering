@@ -17,29 +17,17 @@
 
 \maketitle
 
-\newpage
-
-\tableofcontents
-
-\newpage
-
 \section{Introduction}
-Écrire ce qu'on a compris et codé
+Ce document montre et discute les problèmes trouvés lors de l'implémentation de l'algorithme de rendu en temps réel de la peau humaine.
+D'abord, il sera discuté l'implémentation modèle standard de NVIDIA et ses problèmes et/ou limitations pour ensuite détailler notre implémentation.
 
 \section{Modèle}
 Ce que fait la peau tellement difficile à rendre c'est sa propriété de que la lumière incidente est absorbé en partie et est émise dans un point différent. 
-Pour faire un modèle cohérent il nous faut un modèle qui tienne conte de ces plusieurs couches et que les traite de fa\c con particulières. Dans les sections suivantes, les notations ont été adopté:
-\begin{itemize}
-\item $\vec{L}$ : Direction de la lumière
-\item $\vec{V}$ : Direction de l'observateur
-\item $\vec{H}$ : Vecteur orientée vers la bissectrice entre $\vec{V}$ et $\vec{L}$ et est appelé de \textit{halfway vector}
-\item $\vec{N}$ : Vecteur normal à la surface
-\item $\alpha$  : angle entre $\vec{H}$ et $\vec{N}$
-\end{itemize}
+Pour faire un modèle cohérent il nous faut un modèle qui tienne conte de ces plusieurs couches et que les traite de fa\c con particulières. 
 
 \subsection{Couche Huileux}
 \subsubsection{Présenté dans l'article}
-Cette couche est la seule couche où la réflectance est spéculaire. Au lieu d'utiliser le terme spéculaire de la BRDF de Phong, il vaux mieux d'utiliser celui d'une BRDF physique, vu qu'elle augmente quelques lignes de code et donne un résultat expressive. Le modèle choisit est le modèle de Kelemen/Szirmay-Kalos. Le terme spéculaire dans ce type de modèle est généralement donné par:
+Cette couche est la seule couche où la réflectance est spéculaire. Au lieu d'utiliser le terme spéculaire de la BRDF de Phong, il vaux mieux d'utiliser celui d'une BRDF physique, vu que, selon les auteurs de l'article, elle augmente quelques lignes de code et donne un résultat expressive. Le modèle choisit est le modèle de Kelemen/Szirmay-Kalos. Le terme spéculaire dans ce type de modèle est généralement donné par:
 $$
 f_{r,spec} = P_{\vec{H}}(\vec{H}).F(\lambda, \vec{H}.\vec{L}).G(\vec{N},\vec{L},\vec{V})
 $$
@@ -53,12 +41,9 @@ G(\vec{N},\vec{L},\vec{V}) = (\vec{L} + \vec{V})^2 = \vec{h}.\vec{h}, \\ \\
 F(\lambda, \vec{H}.\vec{L}) = \left(1-\vec{V}.\vec{H}\right)^5 + F_0\left(1-\left(1-\vec{V}.\vec{H}\right)^5\right)
 \end{array}
 $$
-où $\vec{h}$ est le \textit{halfway vector} non normalisé et $F_0$ est la reflectance à l'incidence normale.
+où $\vec{h}$ est le \textit{halfway vector} non normalisé et $F_0$ est la reflectance à l'incidence normale. 
 
-Une amélioration du modèle peut être fait en variant les valeurs de $m$ et de $\rho_s$ en utilisant les valeurs de Weyrich et al. 2006.
-
-\subsubsection{Commentaires}
-L'article dit qu'il vaut mieux de faire le calcul de la distribution de probabilité avant de lancer le calcul de la BRDF et de le estoquer dans une texture pour accélérer la computation, quelque chose qui n'est pas faisable si nous voulons une application dynamique et itérative où nous voulons tourner l'objet par example, ce que changerais le vecteur de vision $\vec{V}$ et, donc, le \textit{halfway vector} $\vec{H}$ en, finalement, changeant le vecteur $\alpha$ et, par conséquent, la distrubuition de probabilité de Beckermann, ce que rend une mise à jour de la texture nécessaire en n'impliquent pas forcement à un calcul plus vite mais à un code plus complexe et compliqué.
+Les auteurs de l'article disent que, pour rendre le calcul plus vite, nous pouvons faire une pré-calcul du terme $P_{\vec{H}}(\vec{H})$ et le estoquer dans une texture. Nous ne partageons pas les mêmes avis que les auteurs puisque, lorsque l'objet bouge dans la scène, les vecteurs de vision de la camera et de lumière vont changer, ainsi que $P_{\vec{H}}(\vec{H})$, ce que fait nécessaire un re-calcul de la texture, en prenant du temps de calcul et en faisant le code plus compliqué. Vu que l'article date de 2007, cet optimisation pouvait être nécessaire, mais avec les cartes modernes ce gain de performance ne vaut pas le cout d'un code plus compliqué, donc l'implémentation ici présent faire explicitement le calcul de la probabilité. Par contre, la technique présenté par l'article rend possible de varier $m$ entre les régions de la texture, ce que rend le rendu plus naturel. 
 
 \subsection{Sous couches}
 Les autres sous couches sont des couches avec une réflexion diffuse. Pour la peau, ces couches on la propriété de renvoyer la lumière dans tout les directions également, ce que nous permet de ne pas considérer la direction de la lumière mais seulement l'intensité re\c cue en chaque point.
@@ -72,6 +57,14 @@ L'article essaies de faire une simplification en faisant la projection du modèl
 
 Pour vérifier la qualité du fitting il faut faire un plot de $rR(r)$ vs. $r$ puisque l'aire sous la courbe est proportionnelle à la reflectance diffuse. 
 
-Après avoir calculé les gaussiennes, l'astuce pour rendre la diffusion c'est de faire un blur avec ces gaussiennes sur la texture avec la texture d'irradiance, les combiner linéairement et appliquer la texture finale à la face.
+Après avoir calculé les gaussiennes, l'astuce pour rendre la diffusion c'est de faire une floutage avec ces gaussiennes sur la texture, ce que nous rend la texture d'irradiance, pour enfin pouvoir les combiner linéairement et appliquer la texture finale à la face.
+
+Les auteurs aussi disent que, d'après un effet de projection, la convolution avec les gaussiennes dans l'espace texture ne sera pas bien convaincante dans l'espace 3D de l'objet, ce que rends nécessaire une correction d'étirement de la gaussienne avec laquelle nous allons faire convoler les textures. D'après le remarque des auteurs que dit que cette correction n'a pas trop d'impact dans le cas étudié vu que le visage n'a pas une courbure très grande, nous avons décidé de ne pas implémenter cette partie et se concentrer sur des parties plus centrales, comme la combinaison linéaire des gaussiennes.
+
+Dans l'article, les auteurs proposent des faire cette floutage de manière "en ligne", en utilisant des Frame Buffer Object. Vu que cela rend le code juste plus compliqué, nous avons décidé de faire cette floutage d'une manière "off line", juste en le chargeant pour faire la combinaison linéaire finale.
+
+Pour la coloriage finale les auteurs proposent deux approches différentes, une qui consiste en normaliser vers le blanc la combinaison linéaire des gaussiennes (Post Scatter Rendering) et une autre que consiste à colorer les pixels lorsque nous faisons la somme des gaussiennes (Pre Scatter Rendering), ce que rend l'image plus flou et aussi plus convaincante. Nous avons implémenté la dernière technique de coloriage.
+
+La suite de l'article présente des techniques pour simuler le transport de lumière dans les parties fines de la peau, aussi comme des techniques pour conserver l'énergie qui ne sont pas implémenté ici. 
 
 \end{document}

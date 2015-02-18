@@ -135,7 +135,7 @@ void init (const std::string& file_name) {
     std::shared_ptr<program_realskin> realskin = std::make_shared<program_realskin>(program_realskin());
 
     // load textures 
-    std::shared_ptr<sgl::host::texture2D> skin = sgl::texture_loader_jpeg::load("../../../models/blondGirl/ModelsFace_skin_hi.jpg");
+    std::shared_ptr<sgl::host::texture2D> skin = sgl::texture_loader_jpeg::load("../../models/blondGirl/ModelsFace_skin_hi.jpg");
     std::vector<std::shared_ptr<sgl::device::texture2D>> textures;
     textures.push_back(skin->to_device());
 
