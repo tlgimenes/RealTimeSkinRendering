@@ -16,7 +16,7 @@
 
 #include "sgl/renderable.hpp"
 
-#include "shader_phong.hpp"
+#include "program_phong.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +27,7 @@ class head_phong : public sgl::device::renderable
     public:
         head_phong(std::shared_ptr<sgl::device::mesh> m,
                 std::shared_ptr<sgl::device::camera> c,
-                std::shared_ptr<shader_phong> s,
+                std::shared_ptr<program_phong> s,
                 std::vector<std::shared_ptr<sgl::device::texture2D>>& t) :
             sgl::device::renderable(m, c, s, t) 
     {
@@ -35,7 +35,6 @@ class head_phong : public sgl::device::renderable
         c->view() = s->view_matrix_location();
         c->model() = s->model_matrix_location();
     }
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

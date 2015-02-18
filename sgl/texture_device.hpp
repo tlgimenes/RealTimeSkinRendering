@@ -36,7 +36,8 @@ namespace sgl
                 GLuint new_texture(unsigned char* data, int height, int width);
 
             public:
-                texture2D(std::shared_ptr<std::vector<unsigned char>> pixels, int height, int width);
+                texture2D(const std::shared_ptr<std::vector<unsigned char>>& pixels, 
+                        int height, int width);
                 texture2D(const texture2D& texture);
 
                 /**
@@ -59,8 +60,8 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-inline sgl::device::texture2D::texture2D(std::shared_ptr<std::vector<unsigned char>> pixels, 
-        int height, int width)
+inline sgl::device::texture2D::texture2D(const std::shared_ptr<std::vector<unsigned char>> 
+        &pixels, int height, int width)
 {
     _id = new_texture(pixels->data(), height, width);
 }

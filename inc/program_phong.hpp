@@ -1,6 +1,6 @@
 /*
  * =====================================================================================
- *       Filename:  shader_phong.hpp
+ *       Filename:  program_phong.hpp
  *    Description:  
  *        Created:  2015-02-17 08:53
  *         Author:  Tiago Lobato Gimenes        (tlgimenes@gmail.com)
@@ -9,12 +9,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SHADER_PHONG_HPP
-#define SHADER_PHONG_HPP
+#ifndef PROGRAM_PHONG_HPP
+#define PROGRAM_PHONG_HPP
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "sgl/shader_device.hpp"
+#include "sgl/pipeline_device.hpp"
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -26,8 +26,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#define PHONG_FRAG_SHADER_PATH "../shaders/shader_phong.frag"
-#define PHONG_VERT_SHADER_PATH "../shaders/shader_phong.vert"
+#define PHONG_FRAG_PROGRAM_PATH "../shaders/shader_phong.frag"
+#define PHONG_VERT_PROGRAM_PATH "../shaders/shader_phong.vert"
 
 #define PHONG_LIGHT_POS_DEFAULT glm::vec3(5.0, 5.0, 5.0)
 #define PHONG_LIGHT_COLOR_DEFAULT glm::vec4(1.5, 1.5, 1.5, 1.0)
@@ -39,7 +39,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-class shader_phong : public sgl::device::shader
+class program_phong : public sgl::device::pipeline
 {
     private:
         // Light
@@ -62,8 +62,8 @@ class shader_phong : public sgl::device::shader
         GLuint _tex_skin_location;
 
     public:
-        shader_phong();
-        ~shader_phong() {}
+        program_phong();
+        ~program_phong() {}
 
         /**
          * Sets
@@ -87,7 +87,7 @@ class shader_phong : public sgl::device::shader
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* !SHADER_PHONG_HPP */
+#endif /* !PROGRAM_PHONG_HPP */
 
 ////////////////////////////////////////////////////////////////////////////////////////
 

@@ -44,6 +44,7 @@ in vec2 tex_uv_interp;
 ////////////////////////////////////////////////////////////////////////////////////////
 // Return: color
 out vec4 frag_color;
+out vec3 whathever;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -70,8 +71,9 @@ void main (void) {
     vec4 tex = texture (tex_skin, tex_uv_interp);
     // ----------------------------------------
 
-    frag_color += (mat_diff * diffuse * mat_diff_color + mat_spec * spec * mat_spec_color) * light_color;
+    frag_color += (mat_diff * diffuse * mat_diff_color  + mat_spec * spec * mat_spec_color) * light_color;
     frag_color *= tex;
+    whathever = light_pos;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

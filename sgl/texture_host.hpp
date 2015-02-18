@@ -32,7 +32,8 @@ namespace sgl
                 int _height, _width;
 
             public:
-                texture2D(std::shared_ptr<std::vector<unsigned char>> pixels, int height, int width);
+                texture2D(const std::shared_ptr<std::vector<unsigned char>>& pixels, 
+                        int height, int width);
                 inline ~texture2D() {}
 
                 /**
@@ -58,8 +59,8 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-inline sgl::host::texture2D::texture2D(std::shared_ptr<std::vector<unsigned char>> pixels, int height, 
-        int width) :
+inline sgl::host::texture2D::texture2D(const std::shared_ptr<std::vector<unsigned char>>&
+        pixels, int height, int width) :
     _pixels(pixels),
     _height(height),
     _width(width)

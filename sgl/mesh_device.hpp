@@ -55,10 +55,10 @@ namespace sgl
                 GLuint new_vao();
 
             public:
-                mesh(std::shared_ptr<std::vector<glm::vec3>> vertex,
-                     std::shared_ptr<std::vector<glm::vec3>> normal,
-                     std::shared_ptr<std::vector<glm::vec2>> tex_uv,
-                     std::shared_ptr<std::vector<int>> faces);
+                mesh(std::shared_ptr<std::vector<glm::vec3>>& vertex,
+                     std::shared_ptr<std::vector<glm::vec3>>& normal,
+                     std::shared_ptr<std::vector<glm::vec2>>& tex_uv,
+                     std::shared_ptr<std::vector<int>>& faces);
                 mesh(const mesh& m);
 
                 /**
@@ -95,10 +95,10 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-inline sgl::device::mesh::mesh(std::shared_ptr<std::vector<glm::vec3>> vertex,
-                        std::shared_ptr<std::vector<glm::vec3>> normal,
-                        std::shared_ptr<std::vector<glm::vec2>> tex_uv,
-                        std::shared_ptr<std::vector<int>> faces) :
+inline sgl::device::mesh::mesh(std::shared_ptr<std::vector<glm::vec3>>& vertex,
+                        std::shared_ptr<std::vector<glm::vec3>>& normal,
+                        std::shared_ptr<std::vector<glm::vec2>>& tex_uv,
+                        std::shared_ptr<std::vector<int>>& faces) :
     _vertex(0),
     _normal(0),
     _tex_uv(0),

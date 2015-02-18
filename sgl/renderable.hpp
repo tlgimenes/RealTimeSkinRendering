@@ -16,9 +16,9 @@
 
 #include <vector>
 
+#include "pipeline_device.hpp"
 #include "texture_device.hpp"
 #include "camera_device.hpp"
-#include "shader_device.hpp"
 #include "mesh_device.hpp"
 
 #include "error.hpp"
@@ -34,14 +34,14 @@ namespace sgl
             protected:
                 std::shared_ptr<mesh> _mesh;    // Mesh
                 std::shared_ptr<camera> _camera; // Camera
-                std::shared_ptr<shader> _shader; // Shader 
+                std::shared_ptr<pipeline> _shader; // Shader 
                 std::vector<GLuint> _textures; // Textures
  
             public:
-                renderable(std::shared_ptr<mesh> _mesh,    // Mesh
-                           std::shared_ptr<camera> _camera, // Camera
-                           std::shared_ptr<shader> _shader, // Shader 
-                           std::vector<std::shared_ptr<texture2D>>& _textures); // Textures
+                renderable(const std::shared_ptr<mesh>& _mesh,    // Mesh
+                           const std::shared_ptr<camera>& _camera, // Camera
+                           const std::shared_ptr<pipeline>& _shader, // Shader 
+                           const std::vector<std::shared_ptr<texture2D>>& _textures); // Textures
 
                 virtual void draw();
 
@@ -55,10 +55,10 @@ namespace sgl
 ////////////////////////////////////////////////////////////////////////////////////////
 
 inline sgl::device::renderable::renderable(
-        std::shared_ptr<mesh> mesh,    // Mesh
-        std::shared_ptr<camera> camera, // Camera
-        std::shared_ptr<shader> shader, // Shader 
-        std::vector<std::shared_ptr<texture2D>>& textures) :
+        const std::shared_ptr<mesh>& mesh,    // Mesh
+        const std::shared_ptr<camera>& camera, // Camera
+        const std::shared_ptr<pipeline>& shader, // Shader 
+        const std::vector<std::shared_ptr<texture2D>>& textures) :
     _mesh(mesh),
     _camera(camera),
     _shader(shader),

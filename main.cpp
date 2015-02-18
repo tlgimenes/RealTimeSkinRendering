@@ -29,8 +29,8 @@
 #include "sgl/renderable.hpp"
 
 #include "parser.hpp"
-#include "shader_phong.hpp"
-#include "shader_realskin.hpp"
+#include "program_phong.hpp"
+#include "program_realskin.hpp"
 #include "head_phong.hpp"
 #include "head_realskin.hpp"
 
@@ -131,8 +131,8 @@ void init (const std::string& file_name) {
     camera->resize(SCREENWIDTH, SCREENHEIGHT);
 
     // load shaders
-    std::shared_ptr<shader_phong> phong = std::make_shared<shader_phong>(shader_phong());
-    std::shared_ptr<shader_realskin> realskin = std::make_shared<shader_realskin>(shader_realskin());
+    std::shared_ptr<program_phong> phong = std::make_shared<program_phong>(program_phong());
+    std::shared_ptr<program_realskin> realskin = std::make_shared<program_realskin>(program_realskin());
 
     // load textures 
     std::shared_ptr<sgl::host::texture2D> skin = sgl::texture_loader_jpeg::load("../../../models/blondGirl/ModelsFace_skin_hi.jpg");
@@ -141,12 +141,12 @@ void init (const std::string& file_name) {
 
     // create a renderable object
     curr_head = phong_head = new head_phong(mesh_vec[2]->to_device(), camera->to_device(), phong, textures);
-    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur0.jpg")->to_device());
-    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur1.jpg")->to_device());
-    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur2.jpg")->to_device());
-    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur3.jpg")->to_device());
-    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur4.jpg")->to_device());
-    textures.push_back(sgl::texture_loader_jpeg::load("../../../Project/models/blondGirl/Blur5.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../models/blondGirl/Blur0.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../models/blondGirl/Blur1.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../models/blondGirl/Blur2.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../models/blondGirl/Blur3.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../models/blondGirl/Blur4.jpg")->to_device());
+    textures.push_back(sgl::texture_loader_jpeg::load("../../models/blondGirl/Blur5.jpg")->to_device());
 
     realskin_head = new head_realskin(mesh_vec[2]->to_device(), camera->to_device(), realskin, textures);
 
@@ -187,6 +187,10 @@ void idle()
         unsigned int numOfTriangles = mesh_vec[0]->faces()->size()/3;
         if(curr_head == phong_head)
             sprintf (winTitle, "Shader: Phong - Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
+        else if(curr_head == realskin_head)
+            sprintf (winTitle, "Shader: Realskin - Number Of Triangles: %d - FPS: %d", numOfTriangles, FPS);
+        else
+            sprintf (winTitle, "BUG ! :(");
         glutSetWindowTitle (winTitle);
         lastTime = currentTime;
     }
@@ -241,7 +245,7 @@ void key(unsigned char key, int x, int y)
         case '1': // Phong's shader 
             curr_head = phong_head;
             break;
-        case '2': // Phong's shader 
+        case '2': // Realskin's shader 
             curr_head = realskin_head;
             break;
         case '+': // Zoom +

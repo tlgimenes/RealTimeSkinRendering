@@ -1,6 +1,6 @@
 /*
  * =====================================================================================
- *       Filename:  shader_realskin.hpp
+ *       Filename:  program_realskin.hpp
  *    Description:  
  *        Created:  2015-02-17 14:57
  *         Author:  Tiago Lobato Gimenes        (tlgimenes@gmail.com)
@@ -9,12 +9,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SHADER_REALSKIN_HPP
-#define SHADER_REALSKIN_HPP
+#ifndef program_REALSKIN_HPP
+#define program_REALSKIN_HPP
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "sgl/shader_device.hpp"
+#include "sgl/pipeline_device.hpp"
 
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
@@ -23,15 +23,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#define REALSKIN_VERT_SHADER_PATH "../shaders/shader_realskin.vert"
-#define REALSKIN_FRAG_SHADER_PATH "../shaders/shader_realskin.frag"
+#define REALSKIN_VERT_PROGRAM_PATH "../shaders/shader_realskin.vert"
+#define REALSKIN_FRAG_PROGRAM_PATH "../shaders/shader_realskin.frag"
 
 #define REALSKIN_LIGHT_POS_DEFAULT glm::vec3(5.0, 5.0, 5.0)
 #define REALSKIN_LIGHT_COLOR_DEFAULT glm::vec4(1.5, 1.5, 1.5, 1.0)
 #define REALSKIN_MAT_DIFF_COLOR_DEFAULT glm::vec4(1.0, 1.0, 1.0, 1.0)
 #define REALSKIN_MAT_DIFF_DEFAULT 0.5
 #define REALSKIN_MAT_SPEC_COLOR_DEFAULT glm::vec4(1.0, 1.0, 1.0, 1.0)
-#define REALSKIN_MAT_SPEC_DEFAULT 0.0000001
+#define REALSKIN_MAT_SPEC_DEFAULT 0.00000012
 #define REALSKIN_MAT_ROUGHNESS_DEFAULT 0.00001
 #define REALSKIN_MAT_REFLECT_NORMAL_DEFAULT 0.028
 
@@ -44,34 +44,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-class shader_realskin : public sgl::device::shader 
+class program_realskin : public sgl::device::pipeline
 {
-    public:
-        shader_realskin();
-        inline virtual ~shader_realskin() {}
-
-        /**
-         * Sets
-         * */
-        void set_light_pos (const glm::vec3& ligth_pos);
-        void set_light_color (const glm::vec4& ligth_color);
-        void set_mat_diffuse_color (const glm::vec4& mat_diff_color);
-        void set_mat_diffuse (float s);
-        void set_mat_specular_color (const glm::vec4& mat_spec_color);
-        void set_mat_specular(float s);
-        void set_mat_roughness(float m);
-        void set_mat_reflect_normal(float F0);
-        void set_tex_skin(int i);
-        void set_tex_blur(int i, GLuint blur_id);
-        void set_coeffs(const glm::vec4& coeff, GLuint coeff_id);
- 
-        /**
-         * Gets
-         * */
-        inline GLuint proj_matrix_location () const { return _proj_matrix_location; }
-        inline GLuint view_matrix_location () const { return _view_matrix_location; }
-        inline GLuint model_matrix_location() const { return _model_matrix_location;}
-
     private:
         // Light
         GLint _light_pos_location;
@@ -96,12 +70,38 @@ class shader_realskin : public sgl::device::shader
 
         // Coefficients
         std::vector<GLuint> _coeffs_location;
+    
+    public:
+        program_realskin();
+        inline virtual ~program_realskin() {}
+
+        /**
+         * Sets
+         * */
+        void set_light_pos (const glm::vec3& ligth_pos);
+        void set_light_color (const glm::vec4& ligth_color);
+        void set_mat_diffuse_color (const glm::vec4& mat_diff_color);
+        void set_mat_diffuse (float s);
+        void set_mat_specular_color (const glm::vec4& mat_spec_color);
+        void set_mat_specular(float s);
+        void set_mat_roughness(float m);
+        void set_mat_reflect_normal(float F0);
+        void set_tex_skin(int i);
+        void set_tex_blur(int i, GLuint blur_id);
+        void set_coeffs(const glm::vec4& coeff, GLuint coeff_id);
+ 
+        /**
+         * Gets
+         * */
+        inline GLuint proj_matrix_location () const { return _proj_matrix_location; }
+        inline GLuint view_matrix_location () const { return _view_matrix_location; }
+        inline GLuint model_matrix_location() const { return _model_matrix_location;}
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#endif /* !SHADER_REALSKIN_HPP */
+#endif /* !program_REALSKIN_HPP */
 
 ////////////////////////////////////////////////////////////////////////////////////////
 

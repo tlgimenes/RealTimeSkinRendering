@@ -7,8 +7,8 @@ set(LIB_NAME skinengine)
 set(INC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/inc)
 set(C_FLAGS -std=c++11)
 set(SRC parser.cpp
-        shader_phong.cpp
-        shader_realskin.cpp
+        program_phong.cpp
+        program_realskin.cpp
         )
 
 # Compiler flags

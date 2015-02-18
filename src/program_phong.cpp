@@ -1,6 +1,6 @@
 /*
  * =====================================================================================
- *       Filename:  shader_phong.cpp
+ *       Filename:  program_phong.cpp
  *    Description:  
  *        Created:  2015-02-17 16:32
  *         Author:  Tiago Lobato Gimenes        (tlgimenes@gmail.com)
@@ -9,13 +9,23 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "shader_phong.hpp"
+#include "program_phong.hpp"
+
+#include "sgl/shader_device.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-shader_phong::shader_phong() : 
-    sgl::device::shader(PHONG_VERT_SHADER_PATH, PHONG_FRAG_SHADER_PATH)
+program_phong::program_phong() :
+    sgl::device::pipeline()
 {
+    sgl::device::shader vert(PHONG_VERT_PROGRAM_PATH, GL_VERTEX_SHADER);
+    sgl::device::shader frag(PHONG_FRAG_PROGRAM_PATH, GL_FRAGMENT_SHADER);
+
+    attach(vert);
+    attach(frag);
+
+    link();
+
     bind();
 
     // Light
@@ -53,14 +63,14 @@ shader_phong::shader_phong() :
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void shader_phong::set_light_pos (const glm::vec3& light_pos)
+void program_phong::set_light_pos (const glm::vec3& light_pos)
 {
     glUniform3f(_light_pos_location, light_pos[0], light_pos[1], light_pos[2]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
  
-void shader_phong::set_light_color (const glm::vec4& light_color)
+void program_phong::set_light_color (const glm::vec4& light_color)
 {
     glUniform4f(_light_color_location, light_color[0], light_color[1], light_color[2], 
             light_color[3]);
@@ -68,7 +78,7 @@ void shader_phong::set_light_color (const glm::vec4& light_color)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void shader_phong::set_mat_diffuse_color (const glm::vec4& mat_diff_color)
+void program_phong::set_mat_diffuse_color (const glm::vec4& mat_diff_color)
 {
     glUniform4f(_mat_diffuse_color_location, mat_diff_color[0], mat_diff_color[1], 
             mat_diff_color[2], mat_diff_color[3]);
@@ -76,14 +86,14 @@ void shader_phong::set_mat_diffuse_color (const glm::vec4& mat_diff_color)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void shader_phong::set_mat_diffuse (float s)
+void program_phong::set_mat_diffuse (float s)
 {
     glUniform1f(_mat_diffuse_location, s);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void shader_phong::set_mat_specular_color (const glm::vec4& mat_spec_color)
+void program_phong::set_mat_specular_color (const glm::vec4& mat_spec_color)
 {
     glUniform4f(_mat_specular_color_location, mat_spec_color[0], mat_spec_color[1], 
             mat_spec_color[2], mat_spec_color[3]);
@@ -91,21 +101,21 @@ void shader_phong::set_mat_specular_color (const glm::vec4& mat_spec_color)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void shader_phong::set_mat_specular(float s)
+void program_phong::set_mat_specular(float s)
 {
     glUniform1f(_mat_specular_location, s);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void shader_phong::set_mat_shininess (float s)
+void program_phong::set_mat_shininess (float s)
 {
     glUniform1f(_mat_shininess_location, s);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void shader_phong::set_tex_skin(int i)
+void program_phong::set_tex_skin(int i)
 {
     glUniform1i(_tex_skin_location, i);
 }
@@ -113,4 +123,5 @@ void shader_phong::set_tex_skin(int i)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
+
 

@@ -16,7 +16,7 @@
 
 #include "sgl/renderable.hpp"
 
-#include "shader_realskin.hpp"
+#include "program_realskin.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@ class head_realskin: public sgl::device::renderable
     public:
         head_realskin(std::shared_ptr<sgl::device::mesh> m,
              std::shared_ptr<sgl::device::camera> c,
-             std::shared_ptr<shader_realskin> s,
+             std::shared_ptr<program_realskin> s,
              std::vector<std::shared_ptr<sgl::device::texture2D>>& t) : 
             sgl::device::renderable(m, c, s, t)
     {

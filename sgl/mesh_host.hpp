@@ -38,11 +38,15 @@ namespace sgl
                 std::shared_ptr<std::vector<int>> _faces; // Indice vector, each three indices define a triangle
 
             public:
-                inline mesh(std::shared_ptr<std::vector<glm::vec3>> vertex, 
-                        std::shared_ptr<std::vector<glm::vec3>> normal,
-                        std::shared_ptr<std::vector<glm::vec2>> tex_uv, 
-                        std::shared_ptr<std::vector<int>> faces) :
+                mesh(const std::shared_ptr<std::vector<glm::vec3>>& vertex, 
+                     const std::shared_ptr<std::vector<glm::vec3>>& normal,
+                     const std::shared_ptr<std::vector<glm::vec2>>& tex_uv, 
+                     const std::shared_ptr<std::vector<int>>& faces) :
                     _vertex(vertex), _normal(normal), _tex_uv(tex_uv), _faces(faces) {}
+
+                mesh(const mesh& m) :
+                    _vertex(m.vertex()), _normal(m.normal()), _tex_uv(m.tex_uv()), 
+                    _faces(m.faces()) {}
 
                 /**
                  * Loads mesh in host to device 
