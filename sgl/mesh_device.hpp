@@ -48,17 +48,18 @@ namespace sgl
 
             protected:
                 
-                GLuint new_vbo(std::vector<float>& data);
+                template <typename T>
+                GLuint new_vbo(std::vector<T>& data);
 
                 GLuint new_index(std::vector<int>& faces);
 
                 GLuint new_vao();
 
             public:
-                mesh(std::shared_ptr<std::vector<glm::vec3>>& vertex,
-                     std::shared_ptr<std::vector<glm::vec3>>& normal,
-                     std::shared_ptr<std::vector<glm::vec2>>& tex_uv,
-                     std::shared_ptr<std::vector<int>>& faces);
+                mesh(const std::shared_ptr<std::vector<glm::vec3>>& vertex,
+                     const std::shared_ptr<std::vector<glm::vec3>>& normal,
+                     const std::shared_ptr<std::vector<glm::vec2>>& tex_uv,
+                     const std::shared_ptr<std::vector<int>>& faces);
                 mesh(const mesh& m);
 
                 /**
@@ -95,37 +96,19 @@ namespace sgl
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-inline sgl::device::mesh::mesh(std::shared_ptr<std::vector<glm::vec3>>& vertex,
-                        std::shared_ptr<std::vector<glm::vec3>>& normal,
-                        std::shared_ptr<std::vector<glm::vec2>>& tex_uv,
-                        std::shared_ptr<std::vector<int>>& faces) :
+inline sgl::device::mesh::mesh(const std::shared_ptr<std::vector<glm::vec3>>& vertex,
+                        const std::shared_ptr<std::vector<glm::vec3>>& normal,
+                        const std::shared_ptr<std::vector<glm::vec2>>& tex_uv,
+                        const std::shared_ptr<std::vector<int>>& faces) :
     _vertex(0),
     _normal(0),
     _tex_uv(0),
     _faces(0),
     _vao(0)
 {
-    std::vector<float> vertex_array(vertex->size() * 3);
-    std::vector<float> normal_array(normal->size() * 3);
-    std::vector<float> tex_uv_array(tex_uv->size() * 2);
-
-    for(int i=0; i < vertex->size(); i++)
-    {
-        vertex_array[3*i  ] = vertex->at(i)[0];
-        vertex_array[3*i+1] = vertex->at(i)[1];
-        vertex_array[3*i+2] = vertex->at(i)[2];
-
-        normal_array[3*i  ] = normal->at(i)[0];
-        normal_array[3*i+1] = normal->at(i)[1];
-        normal_array[3*i+2] = normal->at(i)[2];
-
-        tex_uv_array[2*i  ] = tex_uv->at(i)[0];
-        tex_uv_array[2*i+1] = tex_uv->at(i)[1];
-    }
-
-    _vertex = new_vbo(vertex_array);
-    _normal = new_vbo(normal_array);
-    _tex_uv = new_vbo(tex_uv_array);
+    _vertex = new_vbo<glm::vec3>(*vertex);
+    _normal = new_vbo<glm::vec3>(*normal);
+    _tex_uv = new_vbo<glm::vec2>(*tex_uv);
 
     _faces  = new_index(*faces);
     _faces_count = faces->size();
@@ -148,13 +131,14 @@ inline sgl::device::mesh::mesh(const mesh& m) :
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-inline GLuint sgl::device::mesh::new_vbo(std::vector<float>& data)
+template <typename T>
+inline GLuint sgl::device::mesh::new_vbo(std::vector<T>& data)
 {
     GLuint vbo;
 
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), data.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
 
     gl_check_for_errors();
 
