@@ -141,6 +141,8 @@ void init (const std::string& file_name) {
 
     // create a renderable object
     curr_head = phong_head = new head_phong(mesh_vec[2]->to_device(), camera->to_device(), phong, textures);
+    
+    // Loads blurred textures
     textures.push_back(sgl::texture_loader_jpeg::load("../../models/blondGirl/Blur0.jpg")->to_device());
     textures.push_back(sgl::texture_loader_jpeg::load("../../models/blondGirl/Blur1.jpg")->to_device());
     textures.push_back(sgl::texture_loader_jpeg::load("../../models/blondGirl/Blur2.jpg")->to_device());

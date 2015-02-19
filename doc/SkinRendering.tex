@@ -18,16 +18,15 @@
 \maketitle
 
 \section{Introduction}
-Ce document montre et discute les problèmes trouvés lors de l'implémentation de l'algorithme de rendu en temps réel de la peau humaine.
-D'abord, il sera discuté l'implémentation modèle standard de NVIDIA et ses problèmes et/ou limitations pour ensuite détailler notre implémentation.
+Ce document  discute l’implémentation d’un algorithme de rendu en temps réel de la peau humaine. D’abord, nous présenterons le modèle adopté par les chercheurs chez NVIDIA, ses avantages, ses limitations, pour ensuite détailler notre propre implémentation.
 
 \section{Modèle}
-Ce que fait la peau tellement difficile à rendre c'est sa propriété de que la lumière incidente est absorbé en partie et est émise dans un point différent. 
-Pour faire un modèle cohérent il nous faut un modèle qui tienne conte de ces plusieurs couches et que les traite de fa\c con particulières. 
+Le rendu de la peau est difficile à simuler à cause de sont caractère transluminescent (elle est translucide). Nous avons donc besoin d’un modèle de peau qui tienne en compte de cet aspect, ce que nous allons faire en considérant que la peau est constituée de trois couches distinctes. 
+Couche huileuse/grasse
 
 \subsection{Couche Huileux}
 \subsubsection{Présenté dans l'article}
-Cette couche est la seule couche où la réflectance est spéculaire. Au lieu d'utiliser le terme spéculaire de la BRDF de Phong, il vaux mieux d'utiliser celui d'une BRDF physique, vu que, selon les auteurs de l'article, elle augmente quelques lignes de code et donne un résultat expressive. Le modèle choisit est le modèle de Kelemen/Szirmay-Kalos. Le terme spéculaire dans ce type de modèle est généralement donné par:
+Cette couche supérieure est la seule couche où la réflectance est spéculaire. Au lieu d’utiliser le terme spéculaire de la BRDF de Phong, nous allons utiliser une BRDF physiquement plus plausible qui, selon l’article, donne un aspect plus naturel à la peau et plus fidèle à la réalité. Le modèle choisit est le modèle de Kelemen/Szirmay-Kalos. L’expression analytique du terme spéculaire de ce modèle est donné par la formule générale:
 $$
 f_{r,spec} = P_{\vec{H}}(\vec{H}).F(\lambda, \vec{H}.\vec{L}).G(\vec{N},\vec{L},\vec{V})
 $$
@@ -41,30 +40,28 @@ G(\vec{N},\vec{L},\vec{V}) = (\vec{L} + \vec{V})^2 = \vec{h}.\vec{h}, \\ \\
 F(\lambda, \vec{H}.\vec{L}) = \left(1-\vec{V}.\vec{H}\right)^5 + F_0\left(1-\left(1-\vec{V}.\vec{H}\right)^5\right)
 \end{array}
 $$
-où $\vec{h}$ est le \textit{halfway vector} non normalisé et $F_0$ est la reflectance à l'incidence normale. 
+où $\vec{h}$ est le \textit{halfway vector} non normalisé et $F_0$ est la reflectance lorsque l’incidence est normale.
 
-Les auteurs de l'article disent que, pour rendre le calcul plus vite, nous pouvons faire une pré-calcul du terme $P_{\vec{H}}(\vec{H})$ et le estoquer dans une texture. Nous ne partageons pas les mêmes avis que les auteurs puisque, lorsque l'objet bouge dans la scène, les vecteurs de vision de la camera et de lumière vont changer, ainsi que $P_{\vec{H}}(\vec{H})$, ce que fait nécessaire un re-calcul de la texture, en prenant du temps de calcul et en faisant le code plus compliqué. Vu que l'article date de 2007, cet optimisation pouvait être nécessaire, mais avec les cartes modernes ce gain de performance ne vaut pas le cout d'un code plus compliqué, donc l'implémentation ici présent faire explicitement le calcul de la probabilité. Par contre, la technique présenté par l'article rend possible de varier $m$ entre les régions de la texture, ce que rend le rendu plus naturel. 
+Selon l’article, pour rendre ce calcul plus rapide, il est possible de pré-calculer le terme  $P_{\vec{H}}(\vec{H})$ et de le stocker dans une texture. Nous ne partageons (ou ne comprenons) pas cet avis des auteurs puisque, lorsque l’objet  bouge dans la scène, les vecteurs de vision de la camera (V) et de  lumière (L) changent aussi, ainsi que  $P_{\vec{H}}(\vec{H})$, ce que rend nécessaire le calcul à nouveau de la texture, d’où la perte d’intérêt. Vu que l’article date de 2007, cet optimisation était peut être nécessaire à l’époque, mais avec les cartes graphiques modernes, ce pré-calcul n’est plus nécessaire, et notre implémentation n’en fait pas usage. Par contre, la technique présentée par l’article rend possible la variation du coefficient $m$ au sein de la texture, ce qui permet d’améliorer le rendu.
 
 \subsection{Sous couches}
-Les autres sous couches sont des couches avec une réflexion diffuse. Pour la peau, ces couches on la propriété de renvoyer la lumière dans tout les directions également, ce que nous permet de ne pas considérer la direction de la lumière mais seulement l'intensité re\c cue en chaque point.
+Les couches suivantes permettent de rendre compte du phénomène de diffusion de la lumière. Ces couches ont la propriété de renvoyer la lumière dans tout les directions (isotropie), ce qui nous permet de ne pas prendre en comte la direction des rayons, mais seulement l’intensité reçue en chaque point. Deux modèles différents sont présentés. Le modèle du dipôle ( Jensen et al 2001) et le modèle du multi pole (Donner et Jensen 2005). L’article montre que le modèle du dipôle n’est pas satisfaisant et que le modèle du multi pole avec au moins trois couches l’est.
 
-Deux modèles différents ont été utilisé. Le modèle du dipole de Jensen et al 2001 et le modèle du multipole de Donner et Jensen 2005. L'article montre que le modèle du dipole n'est pas satisfaisante et que le modèle du multipole avec trois couches est un modèle satisfaisante.
-
-L'article essaies de faire une simplification en faisant la projection du modèle du multipole sur un espace des gaussiennes $G_{n} = \left\lbrace \frac{1}{2\pi\nu}e^{\frac{r^2}{2\nu}}\right\rbrace$ tel qu'elles aient un impulse unitaire. Cette projection est définie comme:
+Nous avons approximé les courbes de diffusion par une combinaison linéaire de six gaussiennes, ce qui permet d’avoir à la fin une précision suffisante pour notre champ d’application.
+Cette projection est définie par la formule:
 \begin{equation}
 \proj_{G_n} M=\argmin_{G_{sum}\in G_n}\left\lbrace\frac{\sqrt{\int\limits_0^{\infty} r\left(R(r)-G_{sum}\right)^2}dr}{\sqrt{\int\limits_0^\infty r\left(R(r)\right)^2dr}}\right\rbrace
 \end{equation}
 
-Pour vérifier la qualité du fitting il faut faire un plot de $rR(r)$ vs. $r$ puisque l'aire sous la courbe est proportionnelle à la reflectance diffuse. 
+Pour vérifier la qualité du « fitting », on peut tracer rR(r) en fonction de r, et vérifier que l’aire sous la courbe est proportionnelle à la reflectance diffuse.
 
-Après avoir calculé les gaussiennes, l'astuce pour rendre la diffusion c'est de faire une floutage avec ces gaussiennes sur la texture, ce que nous rend la texture d'irradiance, pour enfin pouvoir les combiner linéairement et appliquer la texture finale à la face.
+Après avoir calculé les gaussiennes, la technique pour rendre compte de la diffusion est convoler ces gaussiennes avec la texture, ce qui nous permet de calculer la texture d’irradiance, pour enfin combiner linéairement les résultats pour chacune des gaussienne et appliquer la texture final simulant le phénomène de diffusion.  D’après les auteurs de l’article, après la projection de la texture sur la géométrie, celle ci subit une distorsion, ce qui rends nécessaire une correction (étirement) de la gaussienne avec laquelle nous allons la convoler. Vu que la courbure sur le visage reste assez faible (d’après une remarque faite par des auteurs)  cette correction n’a pas trop d’impact dans notre cas. Nous avons donc décidé de ne pas implémenter cette partie et de nous concentrer sur le traitement de la texture.
 
-Les auteurs aussi disent que, d'après un effet de projection, la convolution avec les gaussiennes dans l'espace texture ne sera pas bien convaincante dans l'espace 3D de l'objet, ce que rends nécessaire une correction d'étirement de la gaussienne avec laquelle nous allons faire convoler les textures. D'après le remarque des auteurs que dit que cette correction n'a pas trop d'impact dans le cas étudié vu que le visage n'a pas une courbure très grande, nous avons décidé de ne pas implémenter cette partie et se concentrer sur des parties plus centrales, comme la combinaison linéaire des gaussiennes.
+Dans l’article, les auteurs proposent de faire ce floutage de texture  "en ligne", en utilisant des Frame Buffer Object. Vu que cela rend le code plus compliqué, nous avons décidé de faire cette étape de manière "off line", juste en chargeant la texture afin de calculer  la combinaison linéaire finale.
 
-Dans l'article, les auteurs proposent des faire cette floutage de manière "en ligne", en utilisant des Frame Buffer Object. Vu que cela rend le code juste plus compliqué, nous avons décidé de faire cette floutage d'une manière "off line", juste en le chargeant pour faire la combinaison linéaire finale.
+Pour le coloriage final, les auteurs proposent deux approches différentes. La première consiste à normaliser vers le blanc la combinaison linéaire des gaussiennes (Post Scatter Rendering) et la deuxième consiste à colorer les pixels lorsque nous calculons la combinaison linéaire des gaussiennes (Pre Scatter Rendering), ce qui donne une image plus « douce » et aussi plus convaincante. Nous avons implémenté la seconde technique de coloriage.
 
-Pour la coloriage finale les auteurs proposent deux approches différentes, une qui consiste en normaliser vers le blanc la combinaison linéaire des gaussiennes (Post Scatter Rendering) et une autre que consiste à colorer les pixels lorsque nous faisons la somme des gaussiennes (Pre Scatter Rendering), ce que rend l'image plus flou et aussi plus convaincante. Nous avons implémenté la dernière technique de coloriage.
+La suite de l’article présente des techniques pour simuler le transport de lumière dans les parties fines de la peau, ainsi que l’étude de la conservation de l’énergie que nous n’avons pas eu le temps d’implémenter ici.
 
-La suite de l'article présente des techniques pour simuler le transport de lumière dans les parties fines de la peau, aussi comme des techniques pour conserver l'énergie qui ne sont pas implémenté ici. 
 
 \end{document}
